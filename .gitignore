@@ -1,0 +1,21 @@
+# Xcode
+.DS_Store
+build/
+*.xcuserstate
+*.xcuserdatad
+xcuserdata/
+*.xccheckout
+
+# App bundle (can be rebuilt)
+MyText.app/
+MyText.app.dSYM/
+
+# Swift Package Manager
+.swiftpm/
+
+# VS Code
+.vscode/
+
+# Temporary files
+*.tmp
+*.log
