@@ -4,24 +4,16 @@ struct ContentView: View {
     @StateObject private var themeManager = ThemeManager.shared
     @StateObject private var viewModel = EditorViewModel()
     @State private var showFindBar = false
-    @State private var showSidebar = true
+    @State private var showSidebar = false
 
     var body: some View {
         VStack(spacing: 0) {
             // Toolbar
             ToolbarView(viewModel: viewModel, showFindBar: $showFindBar, showSidebar: $showSidebar, themeManager: themeManager)
 
-            // Main content
-            HSplitView {
-                // Sidebar
-                if showSidebar {
-                    SidebarView(viewModel: viewModel, themeManager: themeManager)
-                        .frame(minWidth: 180, idealWidth: 220, maxWidth: 300)
-                }
-
-                // Editor
-                EditorView(viewModel: viewModel, themeManager: themeManager)
-            }
+            // Main content - simplified
+            SimpleTextEditor(viewModel: viewModel, themeManager: themeManager)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // Status bar
             StatusBarView(viewModel: viewModel, themeManager: themeManager)

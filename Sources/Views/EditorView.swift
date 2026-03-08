@@ -6,52 +6,12 @@ struct EditorView: View {
     var themeManager: ThemeManager
 
     var body: some View {
-        GeometryReader { _ in
-            HStack(spacing: 0) {
-                // Line numbers
-                if themeManager.showLineNumbers() {
-                    LineNumberView(
-                        text: viewModel.document.content,
-                        currentLine: viewModel.editorState.lineNumber,
-                        theme: themeManager.currentTheme
-                    )
-                    .frame(width: 50)
-                }
-
-                // Main text editor
-                TextEditorView(viewModel: viewModel, themeManager: themeManager)
-            }
-        }
-        .background(Color(themeManager.currentTheme.editorBackground))
+        SimpleTextEditor(viewModel: viewModel, themeManager: themeManager)
+            .background(Color(themeManager.currentTheme.editorBackground))
     }
 }
 
-struct LineNumberView: View {
-    let text: String
-    let currentLine: Int
-    let theme: EditorTheme
-
-    private var lineCount: Int {
-        text.components(separatedBy: "\n").count
-    }
-
-    var body: some View {
-        VStack(alignment: .trailing, spacing: 0) {
-            ForEach(1...max(lineCount, 1), id: \.self) { lineNumber in
-                Text("\(lineNumber)")
-                    .font(.system(size: ThemeManager.shared.fontSize() - 1, design: .monospaced))
-                    .foregroundColor(lineNumber == currentLine ? Color(theme.lineNumberHighlight) : Color(theme.lineNumber))
-                    .frame(height: ThemeManager.shared.fontSize() * 1.4)
-                    .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.trailing, 8)
-            }
-        }
-        .padding(.top, 8)
-        .background(Color(theme.gutterBackground))
-    }
-}
-
-struct TextEditorView: NSViewRepresentable {
+struct SimpleTextEditor: NSViewRepresentable {
     @ObservedObject var viewModel: EditorViewModel
     var themeManager: ThemeManager
 
@@ -69,6 +29,8 @@ struct TextEditorView: NSViewRepresentable {
         textView.isRichText = false
         textView.importsGraphics = false
         textView.usesFontPanel = false
+
+        // Disable auto substitutions
         textView.isAutomaticQuoteSubstitutionEnabled = false
         textView.isAutomaticDashSubstitutionEnabled = false
         textView.isAutomaticTextReplacementEnabled = false
@@ -90,18 +52,17 @@ struct TextEditorView: NSViewRepresentable {
         textView.isVerticallyResizable = true
         textView.isHorizontallyResizable = false
         textView.textContainer?.widthTracksTextView = true
-        textView.textContainer?.containerSize = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
-
-        // Enable line wrapping
-        textView.isHorizontallyResizable = false
-        textView.textContainer?.widthTracksTextView = true
+        textView.textContainer?.containerSize = NSSize(
+            width: scrollView.contentSize.width,
+            height: CGFloat.greatestFiniteMagnitude
+        )
 
         // Set initial content
         textView.string = viewModel.document.content
 
         // Apply initial highlighting
         DispatchQueue.main.async {
-            context.coordinator.applyHighlighting(to: textView, themeManager: self.themeManager)
+            context.coordinator.applyHighlighting(to: textView)
         }
 
         return scrollView
@@ -122,7 +83,7 @@ struct TextEditorView: NSViewRepresentable {
         if textView.string != viewModel.document.content {
             let selectedRange = textView.selectedRange()
             textView.string = viewModel.document.content
-            context.coordinator.applyHighlighting(to: textView, themeManager: themeManager)
+            context.coordinator.applyHighlighting(to: textView)
 
             // Restore selection
             if selectedRange.location <= textView.string.count {
@@ -141,9 +102,9 @@ struct TextEditorView: NSViewRepresentable {
     }
 
     @MainActor class Coordinator: NSObject, NSTextViewDelegate {
-        var parent: TextEditorView
+        var parent: SimpleTextEditor
 
-        init(_ parent: TextEditorView) {
+        init(_ parent: SimpleTextEditor) {
             self.parent = parent
         }
 
@@ -154,12 +115,12 @@ struct TextEditorView: NSViewRepresentable {
             parent.viewModel.updateContent(textView.string)
 
             // Apply syntax highlighting
-            applyHighlighting(to: textView, themeManager: parent.themeManager)
+            applyHighlighting(to: textView)
         }
 
-        func applyHighlighting(to textView: NSTextView, themeManager: ThemeManager) {
+        func applyHighlighting(to textView: NSTextView) {
             let language = parent.viewModel.detectedLanguage
-            let theme = themeManager.currentTheme
+            let theme = parent.themeManager.currentTheme
 
             let highlighted = parent.viewModel.syntaxHighlighter.highlight(
                 textView.string,
