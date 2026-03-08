@@ -3,22 +3,23 @@ import SwiftUI
 struct ToolbarView: View {
     @ObservedObject var viewModel: EditorViewModel
     @Binding var showFindBar: Bool
-    @EnvironmentObject var themeManager: ThemeManager
+    @Binding var showSidebar: Bool
+    var themeManager: ThemeManager
     @State private var showingThemePicker = false
 
     var body: some View {
         HStack(spacing: 12) {
             // Left toolbar items
             HStack(spacing: 8) {
-                ToolbarButton(icon: "doc.badge.plus", tooltip: "New") {
+                ToolbarButton(icon: "doc.badge.plus", tooltip: "New", themeManager: themeManager) {
                     viewModel.newDocument()
                 }
 
-                ToolbarButton(icon: "folder", tooltip: "Open") {
+                ToolbarButton(icon: "folder", tooltip: "Open", themeManager: themeManager) {
                     viewModel.openDocument()
                 }
 
-                ToolbarButton(icon: "square.and.arrow.down", tooltip: "Save") {
+                ToolbarButton(icon: "square.and.arrow.down", tooltip: "Save", themeManager: themeManager) {
                     viewModel.saveDocument()
                 }
                 .disabled(!viewModel.document.isModified)
@@ -37,13 +38,13 @@ struct ToolbarView: View {
 
             // Right toolbar items
             HStack(spacing: 8) {
-                ToolbarButton(icon: "sidebar.left", tooltip: "Toggle Sidebar") {
+                ToolbarButton(icon: "sidebar.left", tooltip: "Toggle Sidebar", themeManager: themeManager) {
                     withAnimation(.easeInOut(duration: 0.2)) {
-                        viewModel.showSidebar.toggle()
+                        showSidebar.toggle()
                     }
                 }
 
-                ToolbarButton(icon: "magnifyingglass", tooltip: "Find (⌘F)") {
+                ToolbarButton(icon: "magnifyingglass", tooltip: "Find (Cmd+F)", themeManager: themeManager) {
                     showFindBar = true
                 }
 
@@ -84,9 +85,8 @@ struct ToolbarView: View {
 struct ToolbarButton: View {
     let icon: String
     let tooltip: String
+    var themeManager: ThemeManager
     let action: () -> Void
-
-    @EnvironmentObject var themeManager: ThemeManager
 
     var body: some View {
         Button(action: action) {

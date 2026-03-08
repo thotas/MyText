@@ -1,40 +1,37 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var themeManager: ThemeManager
+    @StateObject private var themeManager = ThemeManager.shared
     @StateObject private var viewModel = EditorViewModel()
     @State private var showFindBar = false
+    @State private var showSidebar = true
 
     var body: some View {
         VStack(spacing: 0) {
             // Toolbar
-            ToolbarView(viewModel: viewModel, showFindBar: $showFindBar)
-                .environmentObject(themeManager)
+            ToolbarView(viewModel: viewModel, showFindBar: $showFindBar, showSidebar: $showSidebar, themeManager: themeManager)
 
             // Main content
             HSplitView {
-                // Sidebar (optional)
-                if viewModel.showSidebar {
-                    SidebarView(viewModel: viewModel)
+                // Sidebar
+                if showSidebar {
+                    SidebarView(viewModel: viewModel, themeManager: themeManager)
                         .frame(minWidth: 180, idealWidth: 220, maxWidth: 300)
                 }
 
                 // Editor
-                EditorView(viewModel: viewModel)
-                    .environmentObject(themeManager)
+                EditorView(viewModel: viewModel, themeManager: themeManager)
             }
 
             // Status bar
-            StatusBarView(viewModel: viewModel)
-                .environmentObject(themeManager)
+            StatusBarView(viewModel: viewModel, themeManager: themeManager)
         }
         .background(Color(themeManager.currentTheme.background))
         .onAppear {
             setupNotifications()
         }
         .sheet(isPresented: $showFindBar) {
-            FindBarView(viewModel: viewModel, isPresented: $showFindBar)
-                .environmentObject(themeManager)
+            FindBarView(viewModel: viewModel, isPresented: $showFindBar, themeManager: themeManager)
         }
     }
 

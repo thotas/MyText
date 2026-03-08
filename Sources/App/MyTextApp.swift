@@ -3,15 +3,12 @@ import SwiftUI
 @main
 struct MyTextApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject private var themeManager = ThemeManager.shared
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(themeManager)
                 .preferredColorScheme(.dark)
         }
-        .windowStyle(.hiddenTitleBar)
         .commands {
             CommandGroup(replacing: .newItem) {
                 Button("New") {
@@ -48,7 +45,6 @@ struct MyTextApp: App {
 
         Settings {
             SettingsView()
-                .environmentObject(themeManager)
         }
     }
 }

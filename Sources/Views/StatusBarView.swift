@@ -2,7 +2,7 @@ import SwiftUI
 
 struct StatusBarView: View {
     @ObservedObject var viewModel: EditorViewModel
-    @EnvironmentObject var themeManager: ThemeManager
+    var themeManager: ThemeManager
 
     var body: some View {
         HStack(spacing: 16) {

@@ -3,10 +3,10 @@ import AppKit
 
 struct EditorView: View {
     @ObservedObject var viewModel: EditorViewModel
-    @EnvironmentObject var themeManager: ThemeManager
+    var themeManager: ThemeManager
 
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             HStack(spacing: 0) {
                 // Line numbers
                 if themeManager.showLineNumbers() {
@@ -19,8 +19,7 @@ struct EditorView: View {
                 }
 
                 // Main text editor
-                TextEditorView(viewModel: viewModel)
-                    .environmentObject(themeManager)
+                TextEditorView(viewModel: viewModel, themeManager: themeManager)
             }
         }
         .background(Color(themeManager.currentTheme.editorBackground))
@@ -54,7 +53,7 @@ struct LineNumberView: View {
 
 struct TextEditorView: NSViewRepresentable {
     @ObservedObject var viewModel: EditorViewModel
-    @EnvironmentObject var themeManager: ThemeManager
+    var themeManager: ThemeManager
 
     func makeNSView(context: Context) -> NSScrollView {
         let scrollView = NSTextView.scrollableTextView()
@@ -102,7 +101,7 @@ struct TextEditorView: NSViewRepresentable {
 
         // Apply initial highlighting
         DispatchQueue.main.async {
-            context.coordinator.applyHighlighting(to: textView)
+            context.coordinator.applyHighlighting(to: textView, themeManager: self.themeManager)
         }
 
         return scrollView
@@ -123,7 +122,7 @@ struct TextEditorView: NSViewRepresentable {
         if textView.string != viewModel.document.content {
             let selectedRange = textView.selectedRange()
             textView.string = viewModel.document.content
-            context.coordinator.applyHighlighting(to: textView)
+            context.coordinator.applyHighlighting(to: textView, themeManager: themeManager)
 
             // Restore selection
             if selectedRange.location <= textView.string.count {
@@ -155,12 +154,12 @@ struct TextEditorView: NSViewRepresentable {
             parent.viewModel.updateContent(textView.string)
 
             // Apply syntax highlighting
-            applyHighlighting(to: textView)
+            applyHighlighting(to: textView, themeManager: parent.themeManager)
         }
 
-        func applyHighlighting(to textView: NSTextView) {
+        func applyHighlighting(to textView: NSTextView, themeManager: ThemeManager) {
             let language = parent.viewModel.detectedLanguage
-            let theme = parent.themeManager.currentTheme
+            let theme = themeManager.currentTheme
 
             let highlighted = parent.viewModel.syntaxHighlighter.highlight(
                 textView.string,

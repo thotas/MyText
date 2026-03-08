@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject var themeManager: ThemeManager
     @State private var fontSize: Double = ThemeManager.shared.fontSize()
     @State private var tabWidth: Int = ThemeManager.shared.tabWidth()
     @State private var showLineNumbers: Bool = ThemeManager.shared.showLineNumbers()
+    @StateObject private var themeManager = ThemeManager.shared
 
     var body: some View {
         TabView {
@@ -50,7 +50,7 @@ struct SettingsView: View {
                     }
 
                     Text("Font: SF Mono (System)")
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .font(.system(size: 12))
                 }
             }
@@ -68,7 +68,7 @@ struct SettingsView: View {
                         }
 
                     Text("Uses spaces instead of tabs")
-                        .foregroundColor(.secondary)
+                        .foregroundStyle(.secondary)
                         .font(.system(size: 12))
                 }
 

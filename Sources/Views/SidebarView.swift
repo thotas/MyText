@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SidebarView: View {
     @ObservedObject var viewModel: EditorViewModel
-    @EnvironmentObject var themeManager: ThemeManager
+    var themeManager: ThemeManager
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -19,15 +19,16 @@ struct SidebarView: View {
             .padding(.vertical, 10)
             .background(Color(themeManager.currentTheme.toolbar))
 
-            Divider()
-                .background(Color(themeManager.currentTheme.lineNumber).opacity(0.3))
+            Rectangle()
+                .fill(Color(themeManager.currentTheme.lineNumber).opacity(0.3))
+                .frame(height: 1)
 
             // File info
             VStack(alignment: .leading, spacing: 12) {
-                SidebarItem(icon: "doc", title: "File", value: viewModel.document.fileName)
-                SidebarItem(icon: "chevron.left.forwardslash.chevron.right", title: "Language", value: viewModel.detectedLanguage.displayName)
-                SidebarItem(icon: "number", title: "Lines", value: "\(viewModel.document.content.components(separatedBy: "\n").count)")
-                SidebarItem(icon: "character.cursor.ibeam", title: "Characters", value: "\(viewModel.document.content.count)")
+                SidebarItem(icon: "doc", title: "File", value: viewModel.document.fileName, themeManager: themeManager)
+                SidebarItem(icon: "chevron.left.forwardslash.chevron.right", title: "Language", value: viewModel.detectedLanguage.displayName, themeManager: themeManager)
+                SidebarItem(icon: "number", title: "Lines", value: "\(viewModel.document.content.components(separatedBy: "\n").count)", themeManager: themeManager)
+                SidebarItem(icon: "character.cursor.ibeam", title: "Characters", value: "\(viewModel.document.content.count)", themeManager: themeManager)
             }
             .padding(12)
 
@@ -43,7 +44,7 @@ struct SidebarView: View {
 
                 ForEach(ProgrammingLanguage.allCases, id: \.self) { language in
                     Button(action: {
-                        // Language is auto-detected, but this shows available options
+                        // Language is auto-detected
                     }) {
                         HStack {
                             Image(systemName: viewModel.detectedLanguage == language ? "circle.fill" : "circle")
@@ -72,8 +73,7 @@ struct SidebarItem: View {
     let icon: String
     let title: String
     let value: String
-
-    @EnvironmentObject var themeManager: ThemeManager
+    var themeManager: ThemeManager
 
     var body: some View {
         HStack(spacing: 8) {

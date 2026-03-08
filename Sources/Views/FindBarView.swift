@@ -4,7 +4,7 @@ import AppKit
 struct FindBarView: View {
     @ObservedObject var viewModel: EditorViewModel
     @Binding var isPresented: Bool
-    @EnvironmentObject var themeManager: ThemeManager
+    var themeManager: ThemeManager
     @State private var searchText = ""
     @State private var caseSensitive = false
     @State private var useRegex = false
@@ -30,8 +30,9 @@ struct FindBarView: View {
                         .foregroundColor(Color(themeManager.currentTheme.comment))
                 }
 
-                Divider()
-                    .frame(height: 20)
+                Rectangle()
+                    .fill(Color(themeManager.currentTheme.lineNumber).opacity(0.3))
+                    .frame(width: 1, height: 20)
 
                 // Options
                 Toggle("Case Sensitive", isOn: $caseSensitive)
@@ -44,8 +45,9 @@ struct FindBarView: View {
                     .font(.system(size: 11))
                     .foregroundColor(Color(themeManager.currentTheme.text))
 
-                Divider()
-                    .frame(height: 20)
+                Rectangle()
+                    .fill(Color(themeManager.currentTheme.lineNumber).opacity(0.3))
+                    .frame(width: 1, height: 20)
 
                 // Navigation buttons
                 Button(action: findPrevious) {
@@ -62,8 +64,9 @@ struct FindBarView: View {
                 .buttonStyle(.plain)
                 .foregroundColor(Color(themeManager.currentTheme.text))
 
-                Divider()
-                    .frame(height: 20)
+                Rectangle()
+                    .fill(Color(themeManager.currentTheme.lineNumber).opacity(0.3))
+                    .frame(width: 1, height: 20)
 
                 // Close button
                 Button(action: { isPresented = false }) {
@@ -115,15 +118,12 @@ struct FindBarView: View {
             options.insert(.caseInsensitive)
         }
 
-        let searchStart = forward ? text.index(text.startIndex, offsetBy: min(currentPos + 1, text.count))..<text.endIndex : text.startIndex..<text.index(text.startIndex, offsetBy: max(0, currentPos - 1))
-
-        if let range = text.range(of: searchText, options: options, range: forward ? searchStart.lowerBound..<text.endIndex : text.startIndex..<searchStart.upperBound) {
+        if let range = text.range(of: searchText, options: options, range: forward ? text.index(text.startIndex, offsetBy: min(currentPos + 1, text.count))..<text.endIndex : text.startIndex..<text.index(text.startIndex, offsetBy: max(0, currentPos - 1))) {
             let pos = text.distance(from: text.startIndex, to: range.lowerBound)
             viewModel.editorState.cursorPosition = pos
         } else {
             // Wrap around
-            let fullRange = forward ? text.startIndex..<text.endIndex : text.endIndex..<text.startIndex
-            if let range = text.range(of: searchText, options: options, range: forward ? text.startIndex..<text.endIndex : text.endIndex..<text.startIndex) {
+            if let range = text.range(of: searchText, options: options) {
                 let pos = text.distance(from: text.startIndex, to: range.lowerBound)
                 viewModel.editorState.cursorPosition = pos
             }
