@@ -22,7 +22,6 @@ struct SimpleTextEditor: NSViewRepresentable {
         }
 
         // Configure text view
-        textView.delegate = context.coordinator
         textView.isEditable = true
         textView.isSelectable = true
         textView.allowsUndo = true
@@ -60,10 +59,14 @@ struct SimpleTextEditor: NSViewRepresentable {
         // Set initial content
         textView.string = viewModel.document.content
 
-        // Apply initial highlighting
-        DispatchQueue.main.async {
-            context.coordinator.applyHighlighting(to: textView)
+        // Apply initial highlighting with a delay
+        let coordinator = context.coordinator
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            coordinator.applyHighlighting(to: textView)
         }
+
+        // Set delegate after everything is configured
+        textView.delegate = coordinator
 
         return scrollView
     }
@@ -78,23 +81,6 @@ struct SimpleTextEditor: NSViewRepresentable {
         // Update font
         let fontSize = ThemeManager.shared.fontSize()
         textView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
-
-        // Update content if different
-        if textView.string != viewModel.document.content {
-            let selectedRange = textView.selectedRange()
-            textView.string = viewModel.document.content
-            context.coordinator.applyHighlighting(to: textView)
-
-            // Restore selection
-            if selectedRange.location <= textView.string.count {
-                textView.setSelectedRange(selectedRange)
-            }
-        }
-
-        // Update cursor position in view model
-        let cursorPosition = textView.selectedRange().location
-        viewModel.editorState.cursorPosition = cursorPosition
-        viewModel.updateCursorPosition()
     }
 
     func makeCoordinator() -> Coordinator {
@@ -103,6 +89,7 @@ struct SimpleTextEditor: NSViewRepresentable {
 
     @MainActor class Coordinator: NSObject, NSTextViewDelegate {
         var parent: SimpleTextEditor
+        private var highlightWorkItem: DispatchWorkItem?
 
         init(_ parent: SimpleTextEditor) {
             self.parent = parent
@@ -114,29 +101,46 @@ struct SimpleTextEditor: NSViewRepresentable {
             // Update document
             parent.viewModel.updateContent(textView.string)
 
-            // Apply syntax highlighting
-            applyHighlighting(to: textView)
+            // Cancel any pending highlight
+            highlightWorkItem?.cancel()
+
+            // Schedule highlighting with debounce
+            let workItem = DispatchWorkItem { [weak self] in
+                self?.applyHighlighting(to: textView)
+            }
+            highlightWorkItem = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: workItem)
         }
 
         func applyHighlighting(to textView: NSTextView) {
             let language = parent.viewModel.detectedLanguage
+
+            // Skip highlighting for plain text
+            guard language != .plainText else { return }
+
             let theme = parent.themeManager.currentTheme
 
+            // Get highlighted text
             let highlighted = parent.viewModel.syntaxHighlighter.highlight(
                 textView.string,
                 language: language,
                 theme: theme
             )
 
-            // Preserve selection
-            let selectedRange = textView.selectedRange()
+            // Only apply if different
+            if let currentAttr = textView.textStorage?.mutableCopy() as? NSMutableAttributedString {
+                if !currentAttr.isEqual(to: highlighted) {
+                    // Preserve selection
+                    let selectedRange = textView.selectedRange()
 
-            // Apply highlighting
-            textView.textStorage?.setAttributedString(highlighted)
+                    // Apply highlighting
+                    textView.textStorage?.setAttributedString(highlighted)
 
-            // Restore selection
-            if selectedRange.location <= textView.string.count {
-                textView.setSelectedRange(selectedRange)
+                    // Restore selection
+                    if selectedRange.location <= textView.string.count {
+                        textView.setSelectedRange(selectedRange)
+                    }
+                }
             }
         }
     }
