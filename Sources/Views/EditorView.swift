@@ -59,14 +59,11 @@ struct SimpleTextEditor: NSViewRepresentable {
         // Set initial content
         textView.string = viewModel.document.content
 
-        // Apply initial highlighting with a delay
-        let coordinator = context.coordinator
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            coordinator.applyHighlighting(to: textView)
-        }
+        // Set delegate
+        textView.delegate = context.coordinator
 
-        // Set delegate after everything is configured
-        textView.delegate = coordinator
+        // Apply initial highlighting
+        context.coordinator.applyHighlighting(to: textView)
 
         return scrollView
     }
@@ -81,6 +78,12 @@ struct SimpleTextEditor: NSViewRepresentable {
         // Update font
         let fontSize = ThemeManager.shared.fontSize()
         textView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
+
+        // Update content if different (when file is opened)
+        if textView.string != viewModel.document.content {
+            textView.string = viewModel.document.content
+            context.coordinator.applyHighlighting(to: textView)
+        }
     }
 
     func makeCoordinator() -> Coordinator {
