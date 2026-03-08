@@ -79,9 +79,12 @@ struct SimpleTextEditor: NSViewRepresentable {
         let fontSize = ThemeManager.shared.fontSize()
         textView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
 
-        // Update content if different (when file is opened)
-        if textView.string != viewModel.document.content {
+        // Check if content changed or language changed
+        let contentChanged = textView.string != viewModel.document.content
+
+        if contentChanged {
             textView.string = viewModel.document.content
+            // Re-apply highlighting when file is loaded
             context.coordinator.applyHighlighting(to: textView)
         }
     }
@@ -93,6 +96,8 @@ struct SimpleTextEditor: NSViewRepresentable {
     @MainActor class Coordinator: NSObject, NSTextViewDelegate {
         var parent: SimpleTextEditor
         private var highlightWorkItem: DispatchWorkItem?
+        private var lastAppliedLanguage: ProgrammingLanguage = .plainText
+        private var lastContentHash: Int = 0
 
         init(_ parent: SimpleTextEditor) {
             self.parent = parent
@@ -117,6 +122,13 @@ struct SimpleTextEditor: NSViewRepresentable {
 
         func applyHighlighting(to textView: NSTextView) {
             let language = parent.viewModel.detectedLanguage
+            let contentHash = textView.string.hashValue
+
+            // Skip if nothing changed
+            guard language != lastAppliedLanguage || contentHash != lastContentHash else { return }
+
+            lastAppliedLanguage = language
+            lastContentHash = contentHash
 
             // Skip highlighting for plain text
             guard language != .plainText else { return }
@@ -130,20 +142,15 @@ struct SimpleTextEditor: NSViewRepresentable {
                 theme: theme
             )
 
-            // Only apply if different
-            if let currentAttr = textView.textStorage?.mutableCopy() as? NSMutableAttributedString {
-                if !currentAttr.isEqual(to: highlighted) {
-                    // Preserve selection
-                    let selectedRange = textView.selectedRange()
+            // Preserve selection
+            let selectedRange = textView.selectedRange()
 
-                    // Apply highlighting
-                    textView.textStorage?.setAttributedString(highlighted)
+            // Apply highlighting
+            textView.textStorage?.setAttributedString(highlighted)
 
-                    // Restore selection
-                    if selectedRange.location <= textView.string.count {
-                        textView.setSelectedRange(selectedRange)
-                    }
-                }
+            // Restore selection
+            if selectedRange.location <= textView.string.count {
+                textView.setSelectedRange(selectedRange)
             }
         }
     }

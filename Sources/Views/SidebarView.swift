@@ -44,7 +44,7 @@ struct SidebarView: View {
 
                 ForEach(ProgrammingLanguage.allCases, id: \.self) { language in
                     Button(action: {
-                        // Language is auto-detected
+                        viewModel.setLanguage(language)
                     }) {
                         HStack {
                             Image(systemName: viewModel.detectedLanguage == language ? "circle.fill" : "circle")

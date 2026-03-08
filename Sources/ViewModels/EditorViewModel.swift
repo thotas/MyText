@@ -43,6 +43,10 @@ class EditorViewModel: ObservableObject {
         detectedLanguage = language
     }
 
+    func setLanguage(_ language: ProgrammingLanguage) {
+        detectedLanguage = language
+    }
+
     func newDocument() {
         document = TextDocument(content: "")
         editorState = EditorState()
