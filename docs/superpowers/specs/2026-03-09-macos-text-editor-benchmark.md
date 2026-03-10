@@ -230,7 +230,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Save As | Save to new path | ✅ Implemented | P0 |
 | Recent Files | Track last 10 opened files | ✅ Implemented | P0 |
 | Auto-save | Automatically save modified files | ✅ Implemented | P1 |
-| Multiple Windows | Open same document in multiple windows | ❌ Missing | P0 |
+| Multiple Windows | Open same document in multiple windows | ✅ Implemented | P0 |
 | Trim Trailing Whitespace | Remove trailing whitespace on save + manual command | ✅ Implemented | P1 |
 
 #### F2: Text Editing
@@ -379,7 +379,7 @@ Mark each item against the current codebase to identify work required.
 | 4.4 | Save As | [✓] | NSSavePanel integration |
 | 4.5 | Recent Files | [✓] | recentFiles in ThemeManager + Sidebar |
 | 4.5a | Trim Trailing Whitespace | [✓] | trimTrailingWhitespace in EditorViewModel |
-| 4.6 | Multiple Windows | [~] | SwiftUI WindowGroup supports |
+| 4.6 | Multiple Windows | [✓] | SwiftUI WindowGroup provides Cmd+Shift+N |
 | 4.7 | Undo/Redo | [✓] | NSTextView built-in |
 | 4.8 | Cut/Copy/Paste | [✓] | NSTextView built-in |
 | 4.9 | Line Operations | [✓] | duplicateLine/moveLineUp/moveLineDown in EditorViewModel |
