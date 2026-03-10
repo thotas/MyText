@@ -269,6 +269,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Replace All | Replace all matches | ✅ Implemented | P0 |
 | Find Next/Previous | Navigate matches | ✅ Implemented | P0 |
 | Highlight Matches | Visual highlight of all matches | ✅ Implemented | P0 |
+| Highlight Selection | Highlight all occurrences of selected text | ✅ Implemented | P1 |
 | Find Selection | Search for selected text | ✅ Implemented | P1 |
 
 #### F5: View Options

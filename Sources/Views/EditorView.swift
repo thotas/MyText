@@ -200,6 +200,7 @@ struct SimpleTextEditor: NSViewRepresentable {
         private var lastContentHash: Int = 0
         private var currentLineHighlight: NSRange?
         private var bracketMatchHighlight: NSRange?
+        private var selectionHighlightRanges: [NSRange] = []
         var lineLengthGuideView: LineLengthGuideView?
 
         // Bracket pairs: opening -> closing
@@ -349,6 +350,12 @@ struct SimpleTextEditor: NSViewRepresentable {
             // Update document
             parent.viewModel.updateContent(textView.string)
 
+            // Clear selection highlights when text changes
+            for range in selectionHighlightRanges {
+                textView.textStorage?.removeAttribute(.backgroundColor, range: range)
+            }
+            selectionHighlightRanges.removeAll()
+
             // Update current line highlight
             highlightCurrentLine(in: textView)
 
@@ -398,6 +405,62 @@ struct SimpleTextEditor: NSViewRepresentable {
             guard let textView = notification.object as? NSTextView else { return }
             highlightCurrentLine(in: textView)
             highlightMatchingBracket(in: textView)
+            highlightSelectedText(in: textView)
+        }
+
+        // MARK: - Selection Highlighting
+
+        private func highlightSelectedText(in textView: NSTextView) {
+            // Remove old selection highlights
+            for range in selectionHighlightRanges {
+                textView.textStorage?.removeAttribute(.backgroundColor, range: range)
+            }
+            selectionHighlightRanges.removeAll()
+
+            // Get selected text
+            let selectedRange = textView.selectedRange()
+            guard selectedRange.length > 0 else { return }
+
+            let string = textView.string as NSString
+            guard selectedRange.location < string.length else { return }
+
+            let selectedText = string.substring(with: selectedRange).trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !selectedText.isEmpty, selectedText.count >= 2 else { return }
+
+            // Find all occurrences
+            let fullRange = NSRange(location: 0, length: string.length)
+            var searchRange = fullRange
+            var foundCount = 0
+            let maxHighlights = 100 // Limit to prevent performance issues
+
+            // Use case-insensitive search
+            while foundCount < maxHighlights {
+                let searchString = string.substring(with: searchRange)
+                guard let range = searchString.range(of: selectedText, options: .caseInsensitive) else {
+                    break
+                }
+
+                // Calculate absolute position
+                let relativeStart = searchString.distance(from: searchString.startIndex, to: range.lowerBound)
+                let absoluteStart = searchRange.location + relativeStart
+                let highlightRange = NSRange(location: absoluteStart, length: selectedText.count)
+
+                // Don't highlight the original selection
+                if highlightRange != selectedRange {
+                    // Use a subtle yellow background for other occurrences
+                    let highlightColor = NSColor.systemYellow.withAlphaComponent(0.3)
+                    textView.textStorage?.addAttribute(.backgroundColor, value: highlightColor, range: highlightRange)
+                    selectionHighlightRanges.append(highlightRange)
+                    foundCount += 1
+                }
+
+                // Move search range forward
+                let nextStart = searchRange.location + relativeStart + selectedText.count
+                if nextStart >= string.length {
+                    break
+                }
+                searchRange = NSRange(location: nextStart, length: string.length - nextStart)
+            }
         }
 
         // MARK: - Bracket Matching
