@@ -310,6 +310,10 @@ struct ContentView: View {
             self.viewModel.toggleComment()
         }
 
+        let observerJumpBracket = NotificationCenter.default.addObserver(forName: .jumpToMatchingBracket, object: nil, queue: .main) { _ in
+            self.viewModel.jumpToMatchingBracket()
+        }
+
         let observer17 = NotificationCenter.default.addObserver(forName: .toggleFold, object: nil, queue: .main) { _ in
             self.viewModel.toggleFoldAtCursor()
         }

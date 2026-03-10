@@ -136,6 +136,11 @@ struct MyTextApp: App {
                 }
                 .keyboardShortcut("/", modifiers: .command)
 
+                Button("Jump to Matching Bracket") {
+                    NotificationCenter.default.post(name: .jumpToMatchingBracket, object: nil)
+                }
+                .keyboardShortcut("m", modifiers: [.command, .shift])
+
                 Button("Select Line") {
                     NotificationCenter.default.post(name: .selectLine, object: nil)
                 }
@@ -291,4 +296,5 @@ extension Notification.Name {
     static let findSelection = Notification.Name("findSelection")
     static let convertToSpaces = Notification.Name("convertToSpaces")
     static let convertToTabs = Notification.Name("convertToTabs")
+    static let jumpToMatchingBracket = Notification.Name("jumpToMatchingBracket")
 }

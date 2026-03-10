@@ -484,6 +484,95 @@ class EditorViewModel: ObservableObject {
         textView.setSelectedRange(NSRange(location: lineRange.location, length: lineRange.length))
     }
 
+    func jumpToMatchingBracket() {
+        guard let textView = textView else { return }
+
+        let selectedRange = textView.selectedRange()
+        guard selectedRange.location > 0 else { return }
+
+        let string = textView.string as NSString
+        let charIndex = selectedRange.location - 1
+        guard charIndex < string.length else { return }
+
+        let char = Character(UnicodeScalar(string.character(at: charIndex))!)
+
+        let bracketPairs: [Character: Character] = [
+            "(": ")",
+            "[": "]",
+            "{": "}",
+            "<": ">"
+        ]
+        let closingBrackets: Set<Character> = [")", "]", "}", ">"]
+
+        // Check if character is a bracket
+        if let closingBracket = bracketPairs[char] {
+            // Opening bracket - find closing bracket
+            if let matchRange = findMatchingBracket(
+                from: charIndex + 1,
+                searchingForward: true,
+                openingBracket: char,
+                closingBracket: closingBracket,
+                in: string
+            ) {
+                textView.setSelectedRange(matchRange)
+                textView.scrollRangeToVisible(matchRange)
+            }
+        } else if closingBrackets.contains(char) {
+            // Closing bracket - find opening bracket
+            if let openingBracket = bracketPairs.first(where: { $0.value == char })?.key {
+                if let matchRange = findMatchingBracket(
+                    from: charIndex - 1,
+                    searchingForward: false,
+                    openingBracket: openingBracket,
+                    closingBracket: char,
+                    in: string
+                ) {
+                    textView.setSelectedRange(matchRange)
+                    textView.scrollRangeToVisible(matchRange)
+                }
+            }
+        }
+    }
+
+    private func findMatchingBracket(
+        from startIndex: Int,
+        searchingForward: Bool,
+        openingBracket: Character,
+        closingBracket: Character,
+        in string: NSString
+    ) -> NSRange? {
+        var depth = 1
+        var index = startIndex
+
+        while index >= 0 && index < string.length {
+            let currentChar = Character(UnicodeScalar(string.character(at: index))!)
+
+            if searchingForward {
+                if currentChar == openingBracket {
+                    depth += 1
+                } else if currentChar == closingBracket {
+                    depth -= 1
+                    if depth == 0 {
+                        return NSRange(location: index, length: 1)
+                    }
+                }
+                index += 1
+            } else {
+                if currentChar == closingBracket {
+                    depth += 1
+                } else if currentChar == openingBracket {
+                    depth -= 1
+                    if depth == 0 {
+                        return NSRange(location: index, length: 1)
+                    }
+                }
+                index -= 1
+            }
+        }
+
+        return nil
+    }
+
     func toggleComment() {
         guard let textView = textView else { return }
         let content = textView.string
