@@ -261,8 +261,8 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Regex Find | Search with regular expressions | ✅ Implemented | P0 |
 | Case Sensitive | Toggle case sensitivity | ✅ Implemented | P0 |
 | Replace | Replace current match | ✅ Implemented | P0 |
-| Replace All | Replace all matches | ❌ Missing | P0 |
-| Find Next/Previous | Navigate matches | ❌ Missing | P0 |
+| Replace All | Replace all matches | ✅ Implemented | P0 |
+| Find Next/Previous | Navigate matches | ✅ Implemented | P0 |
 | Highlight Matches | Visual highlight of all matches | ✅ Implemented | P0 |
 
 #### F5: View Options
@@ -301,12 +301,12 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 
 | Feature | Description | Status | Priority |
 |---------|-------------|--------|----------|
-| Fold Functions | Collapse function bodies | ❌ Missing | P0 |
-| Fold Classes | Collapse class definitions | ❌ Missing | P0 |
-| Fold Comments | Collapse block comments | ❌ Missing | P0 |
-| Fold Indented | Collapse indented blocks | ❌ Missing | P0 |
-| Fold Indicators | Visual indicators in gutter | ❌ Missing | P0 |
-| Fold All/Unfold | Bulk fold operations | ❌ Missing | P0 |
+| Fold Functions | Collapse function bodies | ✅ Implemented | P0 |
+| Fold Classes | Collapse class definitions | ✅ Implemented | P0 |
+| Fold Comments | Collapse block comments | ✅ Implemented | P0 |
+| Fold Indented | Collapse indented blocks | ✅ Implemented | P0 |
+| Fold Indicators | Visual indicators in gutter | ✅ Implemented | P0 |
+| Fold All/Unfold | Bulk fold operations | ✅ Implemented | P0 |
 
 ### 3.2 Keyboard Shortcuts
 
@@ -385,8 +385,8 @@ Mark each item against the current codebase to identify work required.
 | 4.19 | Regex Find | [✓] | NSRegularExpression |
 | 4.20 | Case Sensitive | [✓] | Option in FindBar |
 | 4.21 | Replace | [~] | UI present, logic partial |
-| 4.22 | Replace All | [✗] | Missing |
-| 4.23 | Find Next/Previous | [✗] | Missing |
+| 4.22 | Replace All | [✓] | replaceAll in EditorViewModel |
+| 4.23 | Find Next/Previous | [✓] | findNext/findPrevious in EditorViewModel |
 | 4.24 | Highlight Matches | [✓] | highlightMatches in EditorViewModel |
 
 ### View Options
@@ -425,12 +425,12 @@ Mark each item against the current codebase to identify work required.
 
 | ID | Feature | Current Status | Implementation Notes |
 |----|---------|----------------|---------------------|
-| 4.42 | Fold Functions | [✗] | Requires syntax tree |
-| 4.43 | Fold Classes | [✗] | Requires syntax tree |
-| 4.44 | Fold Comments | [✗] | Regex-based possible |
-| 4.45 | Fold Indented | [✗] | Indentation-based |
-| 4.46 | Fold Indicators | [✗] | Gutter custom view |
-| 4.47 | Fold All/Unfold | [✗] | Requires fold state |
+| 4.42 | Fold Functions | [✓] | detectFoldRegions in SyntaxHighlighter |
+| 4.43 | Fold Classes | [✓] | detectFoldRegions in SyntaxHighlighter |
+| 4.44 | Fold Comments | [✓] | detectFoldRegions in SyntaxHighlighter |
+| 4.45 | Fold Indented | [✓] | detectFoldRegions in SyntaxHighlighter |
+| 4.46 | Fold Indicators | [✓] | FoldIndicatorView in EditorView |
+| 4.47 | Fold All/Unfold | [✓] | foldAll/unfoldAll in EditorViewModel |
 
 ---
 
