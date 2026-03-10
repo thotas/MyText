@@ -285,7 +285,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Dracula | Dracula color scheme | ✅ Implemented | P0 |
 | Midnight | Midnight color scheme | ✅ Implemented | P0 |
 | Custom Theme | User-defined colors | ❌ Missing | P0 |
-| Sync with System | Follow macOS appearance | ❌ Missing | P0 |
+| Sync with System | Follow macOS appearance | ✅ Implemented | P0 |
 
 #### F7: Tab Management
 
@@ -409,7 +409,7 @@ Mark each item against the current codebase to identify work required.
 | 4.33 | Dracula | [✓] | EditorTheme.dracula |
 | 4.34 | Midnight | [✓] | EditorTheme.midnight |
 | 4.35 | Custom Theme | [✗] | JSON import/export |
-| 4.36 | System Sync | [✗] | NSApp.effectiveAppearance |
+| 4.36 | System Sync | [✓] | updateForSystemAppearance in ThemeManager |
 
 ### Tab Management
 
