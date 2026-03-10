@@ -84,6 +84,23 @@ struct MyTextApp: App {
                     .keyboardShortcut("\\", modifiers: [.command, .option])
                 }
 
+                Menu("Convert Line Endings") {
+                    Button("Convert to LF (Unix)") {
+                        NotificationCenter.default.post(name: .convertToLF, object: nil)
+                    }
+                    .keyboardShortcut("e", modifiers: [.command, .shift, .option])
+
+                    Button("Convert to CRLF (Windows)") {
+                        NotificationCenter.default.post(name: .convertToCRLF, object: nil)
+                    }
+                    .keyboardShortcut("e", modifiers: [.command, .option, .control])
+
+                    Button("Convert to CR (Classic Mac)") {
+                        NotificationCenter.default.post(name: .convertToCR, object: nil)
+                    }
+                    .keyboardShortcut("e", modifiers: [.command, .control])
+                }
+
                 Divider()
 
                 Button("Close Tab") {
@@ -301,6 +318,9 @@ extension Notification.Name {
     static let findSelection = Notification.Name("findSelection")
     static let convertToSpaces = Notification.Name("convertToSpaces")
     static let convertToTabs = Notification.Name("convertToTabs")
+    static let convertToLF = Notification.Name("convertToLF")
+    static let convertToCRLF = Notification.Name("convertToCRLF")
+    static let convertToCR = Notification.Name("convertToCR")
     static let jumpToMatchingBracket = Notification.Name("jumpToMatchingBracket")
     static let selectAllOccurrences = Notification.Name("selectAllOccurrences")
 }

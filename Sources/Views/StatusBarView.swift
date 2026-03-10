@@ -77,7 +77,7 @@ struct StatusBarView: View {
                 .frame(width: 1, height: 12)
 
             // Line ending
-            Text(TextDocument.LineEnding.unix.displayName)
+            Text(viewModel.document.lineEnding.displayName)
                 .foregroundStyle(Color(themeManager.currentTheme.comment))
 
             Rectangle()

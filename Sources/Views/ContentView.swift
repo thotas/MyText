@@ -76,6 +76,21 @@ struct ContentView: View {
         }
         .onAppear {
             NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+                // Escape key closes overlays
+                if event.keyCode == 53 { // Escape key
+                    if self.showFindBar {
+                        self.showFindBar = false
+                        return nil
+                    }
+                    if self.showGoToLine {
+                        self.showGoToLine = false
+                        return nil
+                    }
+                    if self.showQuickOpen {
+                        self.showQuickOpen = false
+                        return nil
+                    }
+                }
                 if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "p" {
                     showQuickOpen = true
                     return nil
@@ -386,6 +401,19 @@ struct ContentView: View {
             self.viewModel.convertToTabs()
         }
 
+        // Line ending observers
+        let observerConvertToLF = NotificationCenter.default.addObserver(forName: .convertToLF, object: nil, queue: .main) { _ in
+            self.viewModel.convertLineEndings(.lf)
+        }
+
+        let observerConvertToCRLF = NotificationCenter.default.addObserver(forName: .convertToCRLF, object: nil, queue: .main) { _ in
+            self.viewModel.convertLineEndings(.crlf)
+        }
+
+        let observerConvertToCR = NotificationCenter.default.addObserver(forName: .convertToCR, object: nil, queue: .main) { _ in
+            self.viewModel.convertLineEndings(.cr)
+        }
+
         // Split view observers
         let observerSplitH = NotificationCenter.default.addObserver(forName: .splitHorizontal, object: nil, queue: .main) { _ in
             self.splitMode = self.splitMode == .horizontal ? .none : .horizontal
@@ -399,7 +427,7 @@ struct ContentView: View {
             self.splitMode = .none
         }
 
-        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerToggleInvisibles, observerTrimTrailingWhitespace, observerFindSelection, observerConvertToSpaces, observerConvertToTabs, observerSplitH, observerSplitV, observerSplitClose]
+        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerToggleInvisibles, observerTrimTrailingWhitespace, observerFindSelection, observerConvertToSpaces, observerConvertToTabs, observerConvertToLF, observerConvertToCRLF, observerConvertToCR, observerSplitH, observerSplitV, observerSplitClose]
     }
 
     private func removeNotificationObservers() {

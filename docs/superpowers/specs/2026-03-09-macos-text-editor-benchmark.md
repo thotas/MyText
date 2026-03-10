@@ -393,6 +393,7 @@ Mark each item against the current codebase to identify work required.
 | 4.11b | Word/Character Count | [✓] | wordCount, characterCount in StatusBarView |
 | 4.11c | Uppercase/Lowercase | [✓] | uppercaseSelection/lowercaseSelection in EditorViewModel |
 | 4.11d | Sort Lines | [✓] | sortLines in EditorViewModel, sorts selected lines alphabetically |
+| 4.11e | Line Ending Conversion | [✓] | convertLineEndings in EditorViewModel, converts to LF/CRLF/CR, menu + status bar |
 
 ### Syntax Highlighting
 

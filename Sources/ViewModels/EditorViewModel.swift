@@ -227,12 +227,23 @@ class EditorViewModel: ObservableObject {
             let content = try String(contentsOf: url, encoding: .utf8)
             document = TextDocument(content: content, fileURL: url)
             detectLanguage()
+            // Detect line ending from file content
+            document.lineEnding = detectLineEnding(from: content)
             themeManager.addRecentFile(url)
         } catch {
             errorMessage = "Error loading document: \(error.localizedDescription)"
             print("Error loading document: \(error)")
         }
         isLoading = false
+    }
+
+    private func detectLineEnding(from content: String) -> TextDocument.LineEnding {
+        if content.contains("\r\n") {
+            return .windows
+        } else if content.contains("\r") {
+            return .mac
+        }
+        return .unix
     }
 
     func saveDocument() {
@@ -305,6 +316,67 @@ class EditorViewModel: ObservableObject {
         if converted != document.content {
             document.content = converted
             document.isModified = true
+        }
+    }
+
+    // MARK: - Line Ending Conversion
+
+    func convertLineEndings(_ lineEnding: LineEnding) {
+        let converted = convertLineEndings(in: document.content, to: lineEnding)
+        if converted != document.content {
+            document.content = converted
+            document.isModified = true
+        }
+        // Update document's line ending
+        document.lineEnding = lineEnding.toDocumentLineEnding()
+    }
+
+    private func convertLineEndings(in text: String, to lineEnding: LineEnding) -> String {
+        // First normalize to LF
+        var normalized = text
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+
+        // Then convert to target
+        switch lineEnding {
+        case .lf:
+            return normalized
+        case .crlf:
+            return normalized.replacingOccurrences(of: "\n", with: "\r\n")
+        case .cr:
+            return normalized.replacingOccurrences(of: "\n", with: "\r")
+        }
+    }
+
+    var currentLineEnding: LineEnding {
+        let content = document.content
+        if content.contains("\r\n") {
+            return .crlf
+        } else if content.contains("\r") {
+            return .cr
+        }
+        return .lf
+    }
+
+    enum LineEnding: String, CaseIterable {
+        case lf = "LF (Unix)"
+        case crlf = "CRLF (Windows)"
+        case cr = "CR (Classic Mac)"
+
+        func toDocumentLineEnding() -> TextDocument.LineEnding {
+            switch self {
+            case .lf: return .unix
+            case .crlf: return .windows
+            case .cr: return .mac
+            }
+        }
+
+        static func fromDocumentLineEnding(_ de: TextDocument.LineEnding) -> LineEnding {
+            switch de {
+            case .unix: return .lf
+            case .windows: return .crlf
+            case .mac: return .cr
+            }
         }
     }
 
