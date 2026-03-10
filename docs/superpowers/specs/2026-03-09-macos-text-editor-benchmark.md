@@ -228,7 +228,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Open File | Open via dialog, drag-drop, or Cmd+O | ✅ Implemented | P0 |
 | Save File | Save to existing path | ✅ Implemented | P0 |
 | Save As | Save to new path | ✅ Implemented | P0 |
-| Recent Files | Track last 10 opened files | ❌ Missing | P0 |
+| Recent Files | Track last 10 opened files | ✅ Implemented | P0 |
 | Multiple Windows | Open same document in multiple windows | ❌ Missing | P0 |
 
 #### F2: Text Editing
@@ -326,7 +326,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+P | Quick Open | ✅ |
 | Cmd+\\ | Toggle Sidebar | ✅ |
 | Cmd+L | Go to Line | ✅ |
-| Cmd+Shift+L | Select Line | ❌ |
+| Cmd+Shift+L | Select Line | ✅ |
 | Cmd+D | Duplicate Line | ✅ |
 | Cmd+Shift+D | Move Line Down | ✅ |
 | Cmd+Shift+Up | Move Line Up | ✅ |

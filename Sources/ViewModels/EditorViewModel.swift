@@ -354,6 +354,18 @@ class EditorViewModel: ObservableObject {
         textView.setSelectedRange(NSRange(location: min(newCursorPos, newContent.count), length: 0))
     }
 
+    func selectLine() {
+        guard let textView = textView else { return }
+        let content = textView.string
+        let cursorPos = textView.selectedRange().location
+
+        let string = content as NSString
+        let lineRange = string.lineRange(for: NSRange(location: cursorPos, length: 0))
+
+        // Select the entire line
+        textView.setSelectedRange(NSRange(location: lineRange.location, length: lineRange.length))
+    }
+
     func toggleComment() {
         guard let textView = textView else { return }
         let content = textView.string

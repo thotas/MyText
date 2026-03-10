@@ -117,6 +117,11 @@ struct MyTextApp: App {
                 }
                 .keyboardShortcut("/", modifiers: .command)
 
+                Button("Select Line") {
+                    NotificationCenter.default.post(name: .selectLine, object: nil)
+                }
+                .keyboardShortcut("l", modifiers: [.command, .shift])
+
                 Divider()
 
                 Button("Go to Line...") {
@@ -171,6 +176,7 @@ extension Notification.Name {
     static let moveLineUp = Notification.Name("moveLineUp")
     static let moveLineDown = Notification.Name("moveLineDown")
     static let toggleComment = Notification.Name("toggleComment")
+    static let selectLine = Notification.Name("selectLine")
     static let newTab = Notification.Name("newTab")
     static let closeTab = Notification.Name("closeTab")
     static let nextTab = Notification.Name("nextTab")

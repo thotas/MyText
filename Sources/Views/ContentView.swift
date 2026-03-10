@@ -293,7 +293,11 @@ struct ContentView: View {
             self.viewModel.unfoldAll()
         }
 
-        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19]
+        let observer20 = NotificationCenter.default.addObserver(forName: .selectLine, object: nil, queue: .main) { _ in
+            self.viewModel.selectLine()
+        }
+
+        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20]
     }
 
     private func removeNotificationObservers() {
