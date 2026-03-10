@@ -9,6 +9,7 @@ struct FindBarView: View {
     @State private var replaceText = ""
     @State private var caseSensitive = false
     @State private var useRegex = false
+    @State private var notificationObservers: [NSObjectProtocol] = []
 
     var body: some View {
         VStack(spacing: 0) {
@@ -130,6 +131,25 @@ struct FindBarView: View {
             .background(Color(themeManager.currentTheme.toolbar).opacity(0.9))
         }
         .background(Color(themeManager.currentTheme.toolbar))
+        .onAppear {
+            let observer1 = NotificationCenter.default.addObserver(forName: .findNext, object: nil, queue: .main) { [self] _ in
+                if !self.searchText.isEmpty {
+                    self.viewModel.findNext(searchText: self.searchText, isRegex: self.useRegex)
+                }
+            }
+            let observer2 = NotificationCenter.default.addObserver(forName: .findPrevious, object: nil, queue: .main) { [self] _ in
+                if !self.searchText.isEmpty {
+                    self.viewModel.findPrevious(searchText: self.searchText, isRegex: self.useRegex)
+                }
+            }
+            self.notificationObservers = [observer1, observer2]
+        }
+        .onDisappear {
+            for observer in self.notificationObservers {
+                NotificationCenter.default.removeObserver(observer)
+            }
+            self.notificationObservers = []
+        }
     }
 
     private var findCount: Int {

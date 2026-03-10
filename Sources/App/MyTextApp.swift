@@ -178,4 +178,6 @@ extension Notification.Name {
     static let foldAll = Notification.Name("foldAll")
     static let unfoldAll = Notification.Name("unfoldAll")
     static let goToLine = Notification.Name("goToLine")
+    static let findNext = Notification.Name("findNext")
+    static let findPrevious = Notification.Name("findPrevious")
 }

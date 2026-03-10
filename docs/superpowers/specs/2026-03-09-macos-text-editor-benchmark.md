@@ -319,8 +319,8 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+W | Close Window | ✅ |
 | Cmd+Q | Quit | ✅ |
 | Cmd+F | Find | ✅ |
-| Cmd+G | Find Next | ❌ |
-| Cmd+Shift+G | Find Previous | ❌ |
+| Cmd+G | Find Next | ✅ |
+| Cmd+Shift+G | Find Previous | ✅ |
 | Cmd+H | Replace | ❌ |
 | Cmd+, | Settings | ✅ |
 | Cmd+P | Quick Open | ✅ |

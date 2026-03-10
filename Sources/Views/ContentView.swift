@@ -78,6 +78,16 @@ struct ContentView: View {
                     showGoToLine = true
                     return nil
                 }
+                if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "g" {
+                    if event.modifierFlags.contains(.shift) {
+                        // Cmd+Shift+G: Find Previous
+                        NotificationCenter.default.post(name: .findPrevious, object: nil)
+                    } else {
+                        // Cmd+G: Find Next
+                        NotificationCenter.default.post(name: .findNext, object: nil)
+                    }
+                    return nil
+                }
                 return event
             }
         }
@@ -236,7 +246,21 @@ struct ContentView: View {
             self.showGoToLine = true
         }
 
-        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10]
+        let observer11 = NotificationCenter.default.addObserver(forName: .findNext, object: nil, queue: .main) { _ in
+            if !self.showFindBar {
+                self.showFindBar = true
+            }
+            // findNext will be triggered by the FindBarView's onSubmit
+        }
+
+        let observer12 = NotificationCenter.default.addObserver(forName: .findPrevious, object: nil, queue: .main) { _ in
+            if !self.showFindBar {
+                self.showFindBar = true
+            }
+            // findPrevious will be triggered by FindBarView
+        }
+
+        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12]
     }
 
     private func removeNotificationObservers() {
