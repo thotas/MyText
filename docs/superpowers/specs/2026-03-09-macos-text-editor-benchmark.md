@@ -263,7 +263,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Replace | Replace current match | ✅ Implemented | P0 |
 | Replace All | Replace all matches | ❌ Missing | P0 |
 | Find Next/Previous | Navigate matches | ❌ Missing | P0 |
-| Highlight Matches | Visual highlight of all matches | ❌ Missing | P0 |
+| Highlight Matches | Visual highlight of all matches | ✅ Implemented | P0 |
 
 #### F5: View Options
 
@@ -291,10 +291,10 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 
 | Feature | Description | Status | Priority |
 |---------|-------------|--------|----------|
-| Multiple Tabs | Open multiple files in tabs | ❌ Missing | P0 |
-| Tab Bar | Visual tab bar above editor | ❌ Missing | P0 |
-| New Tab | Create new tab | ❌ Missing | P0 |
-| Close Tab | Close current tab | ❌ Missing | P0 |
+| Multiple Tabs | Open multiple files in tabs | ✅ Implemented | P0 |
+| Tab Bar | Visual tab bar above editor | ✅ Implemented | P0 |
+| New Tab | Create new tab | ✅ Implemented | P0 |
+| Close Tab | Close current tab | ✅ Implemented | P0 |
 | Reorder Tabs | Drag to reorder | ❌ Missing | P0 |
 
 #### F8: Code Folding
@@ -387,7 +387,7 @@ Mark each item against the current codebase to identify work required.
 | 4.21 | Replace | [~] | UI present, logic partial |
 | 4.22 | Replace All | [✗] | Missing |
 | 4.23 | Find Next/Previous | [✗] | Missing |
-| 4.24 | Highlight Matches | [✗] | Missing |
+| 4.24 | Highlight Matches | [✓] | highlightMatches in EditorViewModel |
 
 ### View Options
 
@@ -415,10 +415,10 @@ Mark each item against the current codebase to identify work required.
 
 | ID | Feature | Current Status | Implementation Notes |
 |----|---------|----------------|---------------------|
-| 4.37 | Multiple Tabs | [✗] | SwiftUI TabView or custom |
-| 4.38 | Tab Bar | [✗] | Custom SwiftUI view |
-| 4.39 | New Tab | [✗] | Cmd+T handler |
-| 4.40 | Close Tab | [✗] | Cmd+W handler |
+| 4.37 | Multiple Tabs | [✓] | SwiftUI state in ContentView |
+| 4.38 | Tab Bar | [✓] | TabBarView component |
+| 4.39 | New Tab | [✓] | Cmd+T in MyTextApp |
+| 4.40 | Close Tab | [✓] | Cmd+W in MyTextApp |
 | 4.41 | Reorder Tabs | [✗] | Drag and drop |
 
 ### Code Folding
