@@ -10,6 +10,7 @@ class EditorViewModel: ObservableObject {
     @Published var isLoading: Bool = false
 
     let syntaxHighlighter: SyntaxHighlighter
+    let themeManager = ThemeManager.shared
 
     init(document: TextDocument = TextDocument(content: "")) {
         self.document = document
@@ -70,6 +71,7 @@ class EditorViewModel: ObservableObject {
             let content = try String(contentsOf: url, encoding: .utf8)
             document = TextDocument(content: content, fileURL: url)
             detectLanguage()
+            themeManager.addRecentFile(url)
         } catch {
             print("Error loading document: \(error)")
         }

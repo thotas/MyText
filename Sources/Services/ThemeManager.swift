@@ -59,6 +59,26 @@ class ThemeManager: ObservableObject {
     func setShowLineNumbers(_ show: Bool) {
         UserDefaults.standard.set(show, forKey: "showLineNumbers")
     }
+
+    private let recentFilesKey = "recentFiles"
+    private let maxRecentFiles = 10
+
+    func recentFiles() -> [URL] {
+        guard let paths = UserDefaults.standard.stringArray(forKey: recentFilesKey) else {
+            return []
+        }
+        return paths.compactMap { URL(fileURLWithPath: $0) }
+    }
+
+    func addRecentFile(_ url: URL) {
+        var files = recentFiles()
+        files.removeAll { $0 == url }
+        files.insert(url, at: 0)
+        if files.count > maxRecentFiles {
+            files = Array(files.prefix(maxRecentFiles))
+        }
+        UserDefaults.standard.set(files.map { $0.path }, forKey: recentFilesKey)
+    }
 }
 
 struct EditorTheme: Identifiable, Equatable {

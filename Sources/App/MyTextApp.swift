@@ -23,6 +23,17 @@ struct MyTextApp: App {
 
                 Divider()
 
+                Menu("Recent Files") {
+                    ForEach(ThemeManager.shared.recentFiles(), id: \.self) { url in
+                        Button(url.lastPathComponent) {
+                            NotificationCenter.default.post(name: .openRecentFile, object: url)
+                        }
+                    }
+                }
+                .disabled(ThemeManager.shared.recentFiles().isEmpty)
+
+                Divider()
+
                 Button("Save") {
                     NotificationCenter.default.post(name: .saveDocument, object: nil)
                 }
@@ -64,4 +75,5 @@ extension Notification.Name {
     static let openDocument = Notification.Name("openDocument")
     static let saveDocument = Notification.Name("saveDocument")
     static let saveDocumentAs = Notification.Name("saveDocumentAs")
+    static let openRecentFile = Notification.Name("openRecentFile")
 }

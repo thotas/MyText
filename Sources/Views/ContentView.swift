@@ -52,5 +52,11 @@ struct ContentView: View {
         NotificationCenter.default.addObserver(forName: .saveDocumentAs, object: nil, queue: .main) { _ in
             viewModel.saveDocumentAs()
         }
+
+        NotificationCenter.default.addObserver(forName: .openRecentFile, object: nil, queue: .main) { notification in
+            if let url = notification.object as? URL {
+                viewModel.loadDocument(from: url)
+            }
+        }
     }
 }
