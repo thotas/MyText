@@ -295,6 +295,168 @@ class EditorViewModel: ObservableObject {
         }
         textView.setSelectedRange(NSRange(location: min(newCursorPos, newContent.count), length: 0))
     }
+
+    // MARK: - Find & Replace
+
+    func replaceNext(searchText: String, replaceWith: String) {
+        guard let textView = textView, !searchText.isEmpty else { return }
+
+        let content = textView.string
+        let selectedRange = textView.selectedRange()
+
+        // Check if there's a selection that matches the search text
+        if selectedRange.length > 0 {
+            let startIndex = content.index(content.startIndex, offsetBy: selectedRange.location)
+            let endIndex = content.index(startIndex, offsetBy: selectedRange.length)
+            let selectedText = String(content[startIndex..<endIndex])
+
+            let options: String.CompareOptions = caseSensitive ? [] : .caseInsensitive
+            if selectedText == searchText || selectedText.lowercased() == searchText.lowercased() {
+                // Replace the selection
+                textView.insertText(replaceWith, replacementRange: selectedRange)
+                document.content = textView.string
+                document.isModified = true
+
+                // Find next match after the replacement
+                findNext(searchText: searchText, isRegex: false)
+                return
+            }
+        }
+
+        // If no selection or no match, find and replace next occurrence
+        findNext(searchText: searchText, isRegex: false)
+    }
+
+    func replaceAll(searchText: String, replaceWith: String) {
+        guard let textView = textView, !searchText.isEmpty else { return }
+
+        let content = textView.string
+        var options: String.CompareOptions = []
+        if !caseSensitive {
+            options.insert(.caseInsensitive)
+        }
+
+        // Replace all occurrences
+        var newContent = content
+        if caseSensitive {
+            newContent = newContent.replacingOccurrences(of: searchText, with: replaceWith)
+        } else {
+            newContent = newContent.replacingOccurrences(of: searchText, with: replaceWith, options: .caseInsensitive)
+        }
+
+        textView.string = newContent
+        document.content = newContent
+        document.isModified = true
+
+        // Highlight matches to show results
+        highlightMatches(searchText)
+    }
+
+    func findNext(searchText: String, isRegex: Bool) {
+        guard let textView = textView, !searchText.isEmpty else { return }
+
+        let content = textView.string
+        let currentPos = textView.selectedRange().location
+
+        var options: String.CompareOptions = []
+        if !caseSensitive {
+            options.insert(.caseInsensitive)
+        }
+
+        // Search from current position + 1 to end
+        let searchStart = min(currentPos + 1, content.count)
+        let searchRange = content.index(content.startIndex, offsetBy: searchStart)..<content.endIndex
+
+        if let range = content.range(of: searchText, options: options, range: searchRange) {
+            let loc = content.distance(from: content.startIndex, to: range.lowerBound)
+            let length = content.distance(from: range.lowerBound, to: range.upperBound)
+            textView.setSelectedRange(NSRange(location: loc, length: length))
+            textView.scrollRangeToVisible(NSRange(location: loc, length: length))
+        } else {
+            // Wrap around - search from beginning
+            if let range = content.range(of: searchText, options: options) {
+                let loc = content.distance(from: content.startIndex, to: range.lowerBound)
+                let length = content.distance(from: range.lowerBound, to: range.upperBound)
+                textView.setSelectedRange(NSRange(location: loc, length: length))
+                textView.scrollRangeToVisible(NSRange(location: loc, length: length))
+            }
+        }
+    }
+
+    func findPrevious(searchText: String, isRegex: Bool) {
+        guard let textView = textView, !searchText.isEmpty else { return }
+
+        let content = textView.string
+        let currentPos = textView.selectedRange().location
+
+        var options: String.CompareOptions = [.backwards]
+        if !caseSensitive {
+            options.insert(.caseInsensitive)
+        }
+
+        // Search from beginning to current position - 1
+        let searchEnd = max(0, currentPos - 1)
+        let searchRange = content.startIndex..<content.index(content.startIndex, offsetBy: searchEnd)
+
+        if let range = content.range(of: searchText, options: options, range: searchRange) {
+            let loc = content.distance(from: content.startIndex, to: range.lowerBound)
+            let length = content.distance(from: range.lowerBound, to: range.upperBound)
+            textView.setSelectedRange(NSRange(location: loc, length: length))
+            textView.scrollRangeToVisible(NSRange(location: loc, length: length))
+        } else {
+            // Wrap around - search from end
+            if let range = content.range(of: searchText, options: options) {
+                let loc = content.distance(from: content.startIndex, to: range.lowerBound)
+                let length = content.distance(from: range.lowerBound, to: range.upperBound)
+                textView.setSelectedRange(NSRange(location: loc, length: length))
+                textView.scrollRangeToVisible(NSRange(location: loc, length: length))
+            }
+        }
+    }
+
+    func highlightMatches(_ searchText: String) {
+        guard let textView = textView, !searchText.isEmpty else {
+            clearMatchHighlights()
+            return
+        }
+
+        let content = textView.string
+        var options: String.CompareOptions = []
+        if !caseSensitive {
+            options.insert(.caseInsensitive)
+        }
+
+        // Clear existing highlights first
+        clearMatchHighlights()
+
+        // Find all matches and highlight them
+        var searchRange = content.startIndex..<content.endIndex
+        let yellowColor = NSColor.yellow.withAlphaComponent(0.4)
+
+        while let range = content.range(of: searchText, options: options, range: searchRange) {
+            let loc = content.distance(from: content.startIndex, to: range.lowerBound)
+            let length = content.distance(from: range.lowerBound, to: range.upperBound)
+            let nsRange = NSRange(location: loc, length: length)
+
+            // Add temporary attribute for highlight
+            textView.textStorage?.addAttribute(.backgroundColor, value: yellowColor, range: nsRange)
+
+            searchRange = range.upperBound..<content.endIndex
+        }
+    }
+
+    func clearMatchHighlights() {
+        guard let textView = textView else { return }
+
+        let fullRange = NSRange(location: 0, length: textView.string.count)
+        if let textStorage = textView.textStorage {
+            textStorage.removeAttribute(.backgroundColor, range: fullRange)
+        }
+    }
+
+    private var caseSensitive: Bool {
+        false
+    }
 }
 
 enum ProgrammingLanguage: String, CaseIterable {

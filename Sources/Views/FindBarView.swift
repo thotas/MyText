@@ -6,12 +6,13 @@ struct FindBarView: View {
     @Binding var isPresented: Bool
     var themeManager: ThemeManager
     @State private var searchText = ""
+    @State private var replaceText = ""
     @State private var caseSensitive = false
     @State private var useRegex = false
 
     var body: some View {
         VStack(spacing: 0) {
-            // Search field
+            // Search field row
             HStack(spacing: 12) {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(Color(themeManager.currentTheme.comment))
@@ -21,7 +22,10 @@ struct FindBarView: View {
                     .font(.system(size: 13))
                     .foregroundColor(Color(themeManager.currentTheme.text))
                     .onSubmit {
-                        findNext()
+                        viewModel.findNext(searchText: searchText, isRegex: useRegex)
+                    }
+                    .onChange(of: searchText) { _ in
+                        highlightMatches()
                     }
 
                 if !searchText.isEmpty {
@@ -39,6 +43,9 @@ struct FindBarView: View {
                     .toggleStyle(.checkbox)
                     .font(.system(size: 11))
                     .foregroundColor(Color(themeManager.currentTheme.text))
+                    .onChange(of: caseSensitive) { _ in
+                        highlightMatches()
+                    }
 
                 Toggle("Regex", isOn: $useRegex)
                     .toggleStyle(.checkbox)
@@ -49,27 +56,32 @@ struct FindBarView: View {
                     .fill(Color(themeManager.currentTheme.lineNumber).opacity(0.3))
                     .frame(width: 1, height: 20)
 
-                // Navigation buttons
-                Button(action: findPrevious) {
+                // Navigation buttons with keyboard shortcuts
+                Button(action: { viewModel.findPrevious(searchText: searchText, isRegex: useRegex) }) {
                     Image(systemName: "chevron.up")
                         .font(.system(size: 12))
                 }
                 .buttonStyle(.plain)
                 .foregroundColor(Color(themeManager.currentTheme.text))
+                .keyboardShortcut("g", modifiers: [.command, .shift])
 
-                Button(action: findNext) {
+                Button(action: { viewModel.findNext(searchText: searchText, isRegex: useRegex) }) {
                     Image(systemName: "chevron.down")
                         .font(.system(size: 12))
                 }
                 .buttonStyle(.plain)
                 .foregroundColor(Color(themeManager.currentTheme.text))
+                .keyboardShortcut("g", modifiers: .command)
 
                 Rectangle()
                     .fill(Color(themeManager.currentTheme.lineNumber).opacity(0.3))
                     .frame(width: 1, height: 20)
 
                 // Close button
-                Button(action: { isPresented = false }) {
+                Button(action: {
+                    viewModel.clearMatchHighlights()
+                    isPresented = false
+                }) {
                     Image(systemName: "xmark")
                         .font(.system(size: 12))
                 }
@@ -78,9 +90,46 @@ struct FindBarView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(Color(themeManager.currentTheme.toolbar))
+
+            // Replace field row
+            HStack(spacing: 12) {
+                Image(systemName: "arrow.left.arrow.right")
+                    .foregroundColor(Color(themeManager.currentTheme.comment))
+
+                TextField("Replace", text: $replaceText)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 13))
+                    .foregroundColor(Color(themeManager.currentTheme.text))
+
+                Rectangle()
+                    .fill(Color(themeManager.currentTheme.lineNumber).opacity(0.3))
+                    .frame(width: 1, height: 20)
+
+                // Replace buttons
+                Button(action: replaceNext) {
+                    Text("Replace")
+                        .font(.system(size: 12))
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(Color(themeManager.currentTheme.text))
+                .disabled(searchText.isEmpty || replaceText.isEmpty)
+
+                Button(action: replaceAll) {
+                    Text("Replace All")
+                        .font(.system(size: 12))
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(Color(themeManager.currentTheme.text))
+                .keyboardShortcut("a", modifiers: [.command, .shift])
+                .disabled(searchText.isEmpty)
+
+                Spacer()
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color(themeManager.currentTheme.toolbar).opacity(0.9))
         }
-        .frame(height: 40)
+        .background(Color(themeManager.currentTheme.toolbar))
     }
 
     private var findCount: Int {
@@ -99,34 +148,20 @@ struct FindBarView: View {
         return count
     }
 
-    private func findNext() {
-        performSearch(forward: true)
-    }
-
-    private func findPrevious() {
-        performSearch(forward: false)
-    }
-
-    private func performSearch(forward: Bool) {
-        guard !searchText.isEmpty else { return }
-
-        let text = viewModel.document.content
-        let currentPos = viewModel.editorState.cursorPosition
-
-        var options: String.CompareOptions = forward ? [] : .backwards
-        if !caseSensitive {
-            options.insert(.caseInsensitive)
-        }
-
-        if let range = text.range(of: searchText, options: options, range: forward ? text.index(text.startIndex, offsetBy: min(currentPos + 1, text.count))..<text.endIndex : text.startIndex..<text.index(text.startIndex, offsetBy: max(0, currentPos - 1))) {
-            let pos = text.distance(from: text.startIndex, to: range.lowerBound)
-            viewModel.editorState.cursorPosition = pos
+    private func highlightMatches() {
+        if searchText.isEmpty {
+            viewModel.clearMatchHighlights()
         } else {
-            // Wrap around
-            if let range = text.range(of: searchText, options: options) {
-                let pos = text.distance(from: text.startIndex, to: range.lowerBound)
-                viewModel.editorState.cursorPosition = pos
-            }
+            viewModel.highlightMatches(searchText)
         }
+    }
+
+    private func replaceNext() {
+        viewModel.replaceNext(searchText: searchText, replaceWith: replaceText)
+        highlightMatches()
+    }
+
+    private func replaceAll() {
+        viewModel.replaceAll(searchText: searchText, replaceWith: replaceText)
     }
 }
