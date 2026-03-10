@@ -339,6 +339,8 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+Shift+Tab | Previous Tab | ✅ |
 | Cmd+Shift+] | Next Tab (alt) | ✅ |
 | Cmd+Shift+[ | Previous Tab (alt) | ✅ |
+| Cmd+Shift+U | Uppercase Selection | ✅ |
+| Cmd+Shift+L | Lowercase Selection | ✅ |
 
 ---
 
@@ -370,7 +372,8 @@ Mark each item against the current codebase to identify work required.
 | 4.10 | Auto-indent | [✓] | shouldInsertText in EditorView |
 | 4.11 | Tab/Shift+Tab | [✓] | Implemented |
 | 4.11a | Bracket Matching | [✓] | highlightMatchingBracket in EditorView Coordinator |
-| 4.11b | Word/Character Count | [✓] | wordCount, characterCount | in StatusBarView
+| 4.11b | Word/Character Count | [✓] | wordCount, characterCount in StatusBarView |
+| 4.11c | Uppercase/Lowercase | [✓] | uppercaseSelection/lowercaseSelection in EditorViewModel |
 
 ### Syntax Highlighting
 

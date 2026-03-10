@@ -435,6 +435,38 @@ class EditorViewModel: ObservableObject {
         textView.setSelectedRange(NSRange(location: min(newCursorPos, newContent.count), length: 0))
     }
 
+    // MARK: - Text Transformation
+
+    func uppercaseSelection() {
+        guard let textView = textView else { return }
+        let selectedRange = textView.selectedRange()
+
+        guard selectedRange.length > 0 else { return }
+
+        let content = textView.string as NSString
+        let selectedText = content.substring(with: selectedRange)
+        let uppercased = selectedText.uppercased()
+
+        textView.insertText(uppercased, replacementRange: selectedRange)
+        document.content = textView.string
+        document.isModified = true
+    }
+
+    func lowercaseSelection() {
+        guard let textView = textView else { return }
+        let selectedRange = textView.selectedRange()
+
+        guard selectedRange.length > 0 else { return }
+
+        let content = textView.string as NSString
+        let selectedText = content.substring(with: selectedRange)
+        let lowercased = selectedText.lowercased()
+
+        textView.insertText(lowercased, replacementRange: selectedRange)
+        document.content = textView.string
+        document.isModified = true
+    }
+
     // MARK: - Find & Replace
 
     func replaceNext(searchText: String, replaceWith: String) {
