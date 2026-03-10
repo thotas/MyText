@@ -355,12 +355,43 @@ struct SimpleTextEditor: NSViewRepresentable {
             // Cancel any pending highlight
             highlightWorkItem?.cancel()
 
-            // Schedule highlighting with debounce
+            // Use incremental highlighting for better performance
+            // This only re-highlights the affected line(s) instead of the entire document
             let workItem = DispatchWorkItem { [weak self] in
-                self?.applyHighlighting(to: textView)
+                self?.applyIncrementalHighlighting(to: textView)
             }
             highlightWorkItem = workItem
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: workItem)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: workItem)
+        }
+
+        /// Incremental highlighting - only re-highlights the changed line(s)
+        private func applyIncrementalHighlighting(to textView: NSTextView) {
+            let language = parent.viewModel.detectedLanguage
+
+            // Skip for plain text
+            guard language != .plainText else { return }
+
+            let theme = parent.themeManager.currentTheme
+            guard let textStorage = textView.textStorage else { return }
+
+            // Get the current cursor position and find the line range
+            let cursorPosition = textView.selectedRange().location
+            let string = textView.string as NSString
+
+            // Get the line range at cursor position
+            let lineRange = string.lineRange(for: NSRange(location: cursorPosition, length: 0))
+
+            // Use the SyntaxHighlighter's incremental highlight method
+            parent.viewModel.syntaxHighlighter.applyIncrementalHighlight(
+                to: textStorage,
+                text: textView.string,
+                lineRange: lineRange,
+                language: language,
+                theme: theme
+            )
+
+            // Re-apply trailing whitespace highlighting for this line
+            applyTrailingWhitespaceHighlighting(to: textView, lineRange: lineRange)
         }
 
         func textViewDidChangeSelection(_ notification: Notification) {
@@ -597,7 +628,7 @@ struct SimpleTextEditor: NSViewRepresentable {
 
         // MARK: - Trailing Whitespace Highlighting
 
-        private func applyTrailingWhitespaceHighlighting(to textView: NSTextView) {
+        private func applyTrailingWhitespaceHighlighting(to textView: NSTextView, lineRange: NSRange? = nil) {
             guard ThemeManager.shared.highlightTrailingWhitespace() else { return }
 
             let content = textView.string as NSString
@@ -606,6 +637,32 @@ struct SimpleTextEditor: NSViewRepresentable {
             // Use a subtle red color for trailing whitespace
             let trailingColor = NSColor(red: 0.8, green: 0.3, blue: 0.3, alpha: 0.4)
 
+            // If lineRange is provided, only highlight that specific line
+            if let range = lineRange {
+                let lineString = content.substring(with: range)
+                let lineLength = lineString.count
+
+                var trailingStart = lineLength
+                var index = lineLength - 1
+                while index >= 0 {
+                    let char = lineString[lineString.index(lineString.startIndex, offsetBy: index)]
+                    if char == " " || char == "\t" {
+                        trailingStart = index
+                        index -= 1
+                    } else {
+                        break
+                    }
+                }
+
+                if trailingStart < lineLength {
+                    let trailingLength = lineLength - trailingStart
+                    let trailingRange = NSRange(location: range.location + trailingStart, length: trailingLength)
+                    textView.textStorage?.addAttribute(.foregroundColor, value: trailingColor, range: trailingRange)
+                }
+                return
+            }
+
+            // Full document highlighting (original behavior)
             let lines = content.components(separatedBy: "\n")
             var currentLocation = 0
 

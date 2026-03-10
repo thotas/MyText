@@ -97,6 +97,58 @@ class SyntaxHighlighter {
         }
     }
 
+    // MARK: - Incremental Highlighting
+
+    /// Highlights only the specified range (for incremental updates)
+    /// Returns an attributed string with highlighting applied only to the given range
+    func highlightRange(_ text: String, range: NSRange, language: ProgrammingLanguage, theme: EditorTheme) -> NSAttributedString {
+        let attributedString = NSMutableAttributedString(string: text)
+        let fullRange = NSRange(location: 0, length: text.utf16.count)
+
+        // Base styling
+        let baseFont = NSFont.monospacedSystemFont(ofSize: ThemeManager.shared.fontSize(), weight: .regular)
+        let baseAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: NSColor(theme.text),
+            .font: baseFont
+        ]
+        attributedString.addAttributes(baseAttributes, range: fullRange)
+
+        guard let definition = languageDefinitions[language], language != .plainText else {
+            return attributedString
+        }
+
+        // Apply patterns only to the specified range
+        for patternDef in definition.patterns {
+            applyPattern(patternDef, to: attributedString, text: text, theme: theme, limitedTo: range)
+        }
+
+        return attributedString
+    }
+
+    /// Apply incremental highlighting to an existing attributed string
+    /// Only re-highlights the specified line range
+    func applyIncrementalHighlight(to textStorage: NSTextStorage, text: String, lineRange: NSRange, language: ProgrammingLanguage, theme: EditorTheme) {
+        guard language != .plainText else { return }
+        guard let definition = languageDefinitions[language] else { return }
+
+        // Get the line text
+        let nsText = text as NSString
+        let lineString = nsText.substring(with: lineRange)
+
+        // Reset the line to base styling first
+        let baseFont = NSFont.monospacedSystemFont(ofSize: ThemeManager.shared.fontSize(), weight: .regular)
+        let baseColor = NSColor(theme.text)
+        textStorage.beginEditing()
+        textStorage.addAttribute(.foregroundColor, value: baseColor, range: lineRange)
+        textStorage.addAttribute(.font, value: baseFont, range: lineRange)
+
+        // Apply highlighting patterns to this line
+        for patternDef in definition.patterns {
+            applyPattern(patternDef, to: textStorage, text: text, theme: theme, limitedTo: lineRange)
+        }
+        textStorage.endEditing()
+    }
+
     private func applyPattern(_ patternDef: PatternDefinition, to attributedString: NSMutableAttributedString, text: String, theme: EditorTheme) {
         guard let regex = try? NSRegularExpression(pattern: patternDef.pattern, options: patternDef.patternOptions) else {
             return
@@ -120,6 +172,64 @@ class SyntaxHighlighter {
                 attributedString.addAttribute(.foregroundColor, value: color, range: matchRange)
                 if let font = font {
                     attributedString.addAttribute(.font, value: font, range: matchRange)
+                }
+            }
+        }
+    }
+
+    /// Apply pattern only to a limited range (for incremental highlighting)
+    private func applyPattern(_ patternDef: PatternDefinition, to attributedString: NSMutableAttributedString, text: String, theme: EditorTheme, limitedTo limitRange: NSRange) {
+        guard let regex = try? NSRegularExpression(pattern: patternDef.pattern, options: patternDef.patternOptions) else {
+            return
+        }
+
+        // Find matches within the limited range
+        let matches = regex.matches(in: text, options: [], range: limitRange)
+
+        let color = colorForScope(patternDef.scope, theme: theme)
+        let font = fontForScope(patternDef.scope, theme: theme)
+
+        for match in matches {
+            let matchRange: NSRange
+            if patternDef.captureGroup > 0, match.numberOfRanges > patternDef.captureGroup {
+                matchRange = match.range(at: patternDef.captureGroup)
+            } else {
+                matchRange = match.range
+            }
+
+            if matchRange.location != NSNotFound {
+                attributedString.addAttribute(.foregroundColor, value: color, range: matchRange)
+                if let font = font {
+                    attributedString.addAttribute(.font, value: font, range: matchRange)
+                }
+            }
+        }
+    }
+
+    /// Apply pattern to NSTextStorage for incremental updates
+    private func applyPattern(_ patternDef: PatternDefinition, to textStorage: NSTextStorage, text: String, theme: EditorTheme, limitedTo limitRange: NSRange) {
+        guard let regex = try? NSRegularExpression(pattern: patternDef.pattern, options: patternDef.patternOptions) else {
+            return
+        }
+
+        // Find matches within the limited range
+        let matches = regex.matches(in: text, options: [], range: limitRange)
+
+        let color = colorForScope(patternDef.scope, theme: theme)
+        let font = fontForScope(patternDef.scope, theme: theme)
+
+        for match in matches {
+            let matchRange: NSRange
+            if patternDef.captureGroup > 0, match.numberOfRanges > patternDef.captureGroup {
+                matchRange = match.range(at: patternDef.captureGroup)
+            } else {
+                matchRange = match.range
+            }
+
+            if matchRange.location != NSNotFound {
+                textStorage.addAttribute(.foregroundColor, value: color, range: matchRange)
+                if let font = font {
+                    textStorage.addAttribute(.font, value: font, range: matchRange)
                 }
             }
         }

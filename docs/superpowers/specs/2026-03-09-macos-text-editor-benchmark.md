@@ -255,7 +255,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | SQL | Keywords, functions, strings, comments | ✅ Implemented | P0 |
 | Auto-detect | Detect language from file extension | ✅ Implemented | P0 |
 | Manual Select | Override detected language | ✅ Implemented | P0 |
-| Incremental Update | Re-highlight only changed regions | ❌ Missing | P0 |
+| Incremental Update | Re-highlight only changed regions | ✅ Implemented | P0 |
 
 #### F4: Find & Replace
 
@@ -399,7 +399,7 @@ Mark each item against the current codebase to identify work required.
 | 4.14 | SQL Support | [✓] | Regex-based in SyntaxHighlighter |
 | 4.15 | Auto-detect Language | [✓] | ProgrammingLanguage.fromExtension |
 | 4.16 | Manual Language Select | [✓] | Sidebar dropdown |
-| 4.17 | Incremental Highlight | [~] | Full rehighlight on change |
+| 4.17 | Incremental Highlight | [✓] | Only re-highlights changed line |
 
 ### Find & Replace
 
