@@ -226,5 +226,57 @@ struct SimpleTextEditor: NSViewRepresentable {
                 textView.setSelectedRange(selectedRange)
             }
         }
+
+        // MARK: - Auto-Indent
+
+        func textView(_ textView: NSTextView, shouldInsertText string: String, replacingRangeCharRange charRange: NSRange) -> Bool {
+            if string == "\n" {
+                let currentLine = getCurrentLine(textView: textView)
+                let indent = getIndentation(of: currentLine)
+
+                var extraIndent = ""
+                let trimmed = currentLine.trimmingCharacters(in: .whitespaces)
+                if trimmed.hasSuffix(":") || trimmed.hasSuffix("{") || trimmed.hasSuffix("=") {
+                    extraIndent = String(repeating: " ", count: parent.viewModel.tabWidth)
+                }
+
+                let insertion = "\n" + indent + extraIndent
+                textView.insertText(insertion, replacementRange: charRange)
+                return false
+            }
+            return true
+        }
+
+        private func getCurrentLine(textView: NSTextView) -> String {
+            let content = textView.string as NSString
+            let cursorPosition = textView.selectedRange().location
+
+            // Find the start of the current line
+            var lineStart = cursorPosition
+            while lineStart > 0 && content.character(at: lineStart - 1) != 0x0A { // 0x0A is newline
+                lineStart -= 1
+            }
+
+            // Find the end of the current line
+            var lineEnd = cursorPosition
+            while lineEnd < content.length && content.character(at: lineEnd) != 0x0A {
+                lineEnd += 1
+            }
+
+            let range = NSRange(location: lineStart, length: lineEnd - lineStart)
+            return content.substring(with: range)
+        }
+
+        private func getIndentation(of line: String) -> String {
+            var indent = ""
+            for char in line {
+                if char == " " || char == "\t" {
+                    indent.append(char)
+                } else {
+                    break
+                }
+            }
+            return indent
+        }
     }
 }

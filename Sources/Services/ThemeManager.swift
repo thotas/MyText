@@ -230,6 +230,12 @@ extension Double {
     }
 }
 
+extension Int {
+    var nonZero: Int? {
+        self > 0 ? self : nil
+    }
+}
+
 extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)

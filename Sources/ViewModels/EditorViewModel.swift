@@ -17,6 +17,10 @@ class EditorViewModel: ObservableObject {
     let syntaxHighlighter: SyntaxHighlighter
     let themeManager = ThemeManager.shared
 
+    var tabWidth: Int {
+        UserDefaults.standard.integer(forKey: "tabWidth").nonZero ?? 4
+    }
+
     init(document: TextDocument = TextDocument(content: "")) {
         self.document = document
         self.syntaxHighlighter = SyntaxHighlighter()
