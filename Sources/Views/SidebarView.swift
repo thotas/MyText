@@ -4,6 +4,10 @@ struct SidebarView: View {
     @ObservedObject var viewModel: EditorViewModel
     var themeManager: ThemeManager
 
+    private var recentFiles: [URL] {
+        themeManager.recentFiles()
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Header
@@ -31,6 +35,56 @@ struct SidebarView: View {
                 SidebarItem(icon: "character.cursor.ibeam", title: "Characters", value: "\(viewModel.document.content.count)", themeManager: themeManager)
             }
             .padding(12)
+
+            // Recent Files section
+            if !recentFiles.isEmpty {
+                Rectangle()
+                    .fill(Color(themeManager.currentTheme.lineNumber).opacity(0.3))
+                    .frame(height: 1)
+
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack {
+                        Image(systemName: "clock")
+                            .foregroundColor(Color(themeManager.currentTheme.comment))
+                        Text("Recent Files")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(Color(themeManager.currentTheme.text))
+                        Spacer()
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+
+                    ForEach(recentFiles.prefix(5), id: \.self) { url in
+                        Button(action: {
+                            viewModel.loadDocument(from: url)
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "doc.text")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(Color(themeManager.currentTheme.comment))
+                                    .frame(width: 14)
+
+                                Text(url.lastPathComponent)
+                                    .font(.system(size: 11))
+                                    .foregroundColor(Color(themeManager.currentTheme.text))
+                                    .lineLimit(1)
+
+                                Spacer()
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 4)
+                        }
+                        .buttonStyle(.plain)
+                        .onHover { hovering in
+                            if hovering {
+                                NSCursor.pointingHand.push()
+                            } else {
+                                NSCursor.pop()
+                            }
+                        }
+                    }
+                }
+            }
 
             Spacer()
 

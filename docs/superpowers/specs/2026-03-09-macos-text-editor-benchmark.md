@@ -361,7 +361,7 @@ Mark each item against the current codebase to identify work required.
 | 4.2 | Open File | [✓] | NSOpenPanel integration |
 | 4.3 | Save File | [✓] | Write to URL |
 | 4.4 | Save As | [✓] | NSSavePanel integration |
-| 4.5 | Recent Files | [✓] | recentFiles in ThemeManager |
+| 4.5 | Recent Files | [✓] | recentFiles in ThemeManager + Sidebar |
 | 4.5a | Trim Trailing Whitespace | [✓] | trimTrailingWhitespace in EditorViewModel |
 | 4.6 | Multiple Windows | [~] | SwiftUI WindowGroup supports |
 | 4.7 | Undo/Redo | [✓] | NSTextView built-in |
