@@ -248,23 +248,10 @@ struct SimpleTextEditor: NSViewRepresentable {
         }
 
         private func getCurrentLine(textView: NSTextView) -> String {
-            let content = textView.string as NSString
-            let cursorPosition = textView.selectedRange().location
-
-            // Find the start of the current line
-            var lineStart = cursorPosition
-            while lineStart > 0 && content.character(at: lineStart - 1) != 0x0A { // 0x0A is newline
-                lineStart -= 1
-            }
-
-            // Find the end of the current line
-            var lineEnd = cursorPosition
-            while lineEnd < content.length && content.character(at: lineEnd) != 0x0A {
-                lineEnd += 1
-            }
-
-            let range = NSRange(location: lineStart, length: lineEnd - lineStart)
-            return content.substring(with: range)
+            let selectedRange = textView.selectedRange()
+            let string = textView.string as NSString
+            let lineRange = string.lineRange(for: NSRange(location: selectedRange.location, length: 0))
+            return string.substring(with: lineRange)
         }
 
         private func getIndentation(of line: String) -> String {
