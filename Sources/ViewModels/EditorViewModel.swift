@@ -467,6 +467,34 @@ class EditorViewModel: ObservableObject {
         document.isModified = true
     }
 
+    func sortLines() {
+        guard let textView = textView else { return }
+        let content = textView.string
+        let selectedRange = textView.selectedRange()
+
+        let string = content as NSString
+        let lineRange: NSRange
+
+        if selectedRange.length > 0 {
+            // Sort selected lines
+            lineRange = string.lineRange(for: selectedRange)
+        } else {
+            // Sort all lines
+            lineRange = NSRange(location: 0, length: string.length)
+        }
+
+        let selectedText = string.substring(with: lineRange)
+        var lines = selectedText.components(separatedBy: "\n")
+
+        // Sort lines alphabetically (case-insensitive)
+        lines.sort { $0.lowercased() < $1.lowercased() }
+
+        let sortedText = lines.joined(separator: "\n")
+        textView.insertText(sortedText, replacementRange: lineRange)
+        document.content = textView.string
+        document.isModified = true
+    }
+
     // MARK: - Find & Replace
 
     func replaceNext(searchText: String, replaceWith: String) {

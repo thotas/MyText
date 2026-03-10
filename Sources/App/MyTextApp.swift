@@ -132,7 +132,12 @@ struct MyTextApp: App {
                 Button("Lowercase Selection") {
                     NotificationCenter.default.post(name: .lowercaseSelection, object: nil)
                 }
-                .keyboardShortcut("l", modifiers: [.command, .shift])
+                .keyboardShortcut("u", modifiers: [.command, .option, .shift])
+
+                Button("Sort Lines") {
+                    NotificationCenter.default.post(name: .sortLines, object: nil)
+                }
+                .keyboardShortcut("s", modifiers: [.command, .option])
 
                 Divider()
 
@@ -222,4 +227,5 @@ extension Notification.Name {
     static let splitClose = Notification.Name("splitClose")
     static let uppercaseSelection = Notification.Name("uppercaseSelection")
     static let lowercaseSelection = Notification.Name("lowercaseSelection")
+    static let sortLines = Notification.Name("sortLines")
 }

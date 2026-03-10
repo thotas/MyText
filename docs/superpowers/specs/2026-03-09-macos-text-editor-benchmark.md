@@ -340,7 +340,8 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+Shift+] | Next Tab (alt) | ✅ |
 | Cmd+Shift+[ | Previous Tab (alt) | ✅ |
 | Cmd+Shift+U | Uppercase Selection | ✅ |
-| Cmd+Shift+L | Lowercase Selection | ✅ |
+| Cmd+Opt+U+Shift | Lowercase Selection | ✅ |
+| Cmd+Opt+S | Sort Lines | ✅ |
 
 ---
 
@@ -374,6 +375,7 @@ Mark each item against the current codebase to identify work required.
 | 4.11a | Bracket Matching | [✓] | highlightMatchingBracket in EditorView Coordinator |
 | 4.11b | Word/Character Count | [✓] | wordCount, characterCount in StatusBarView |
 | 4.11c | Uppercase/Lowercase | [✓] | uppercaseSelection/lowercaseSelection in EditorViewModel |
+| 4.11d | Sort Lines | [✓] | sortLines in EditorViewModel, sorts selected lines alphabetically |
 
 ### Syntax Highlighting
 
