@@ -101,6 +101,7 @@ struct SimpleTextEditor: NSViewRepresentable {
         private var highlightWorkItem: DispatchWorkItem?
         private var lastAppliedLanguage: ProgrammingLanguage = .plainText
         private var lastContentHash: Int = 0
+        private var currentLineHighlight: NSRange?
 
         init(_ parent: SimpleTextEditor) {
             self.parent = parent
@@ -182,6 +183,9 @@ struct SimpleTextEditor: NSViewRepresentable {
             // Update document
             parent.viewModel.updateContent(textView.string)
 
+            // Update current line highlight
+            highlightCurrentLine(in: textView)
+
             // Cancel any pending highlight
             highlightWorkItem?.cancel()
 
@@ -191,6 +195,30 @@ struct SimpleTextEditor: NSViewRepresentable {
             }
             highlightWorkItem = workItem
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: workItem)
+        }
+
+        func textViewDidChangeSelection(_ notification: Notification) {
+            guard let textView = notification.object as? NSTextView else { return }
+            highlightCurrentLine(in: textView)
+        }
+
+        private func highlightCurrentLine(in textView: NSTextView) {
+            // Remove old highlight
+            if let oldRange = currentLineHighlight, oldRange.location != NSNotFound {
+                textView.textStorage?.removeAttribute(.backgroundColor, range: oldRange)
+            }
+
+            // Get current line range
+            let selectedRange = textView.selectedRange()
+            let string = textView.string as NSString
+            let lineRange = string.lineRange(for: NSRange(location: selectedRange.location, length: 0))
+
+            guard lineRange.length > 0 else { return }
+
+            // Add new highlight
+            let highlightColor = NSColor(Color(parent.themeManager.currentTheme.currentLineBackground))
+            textView.textStorage?.addAttribute(.backgroundColor, value: highlightColor, range: lineRange)
+            currentLineHighlight = lineRange
         }
 
         func applyHighlighting(to textView: NSTextView) {

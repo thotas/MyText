@@ -101,6 +101,7 @@ struct EditorTheme: Identifiable, Equatable {
     let lineNumberHighlight: Color
     let gutterBackground: Color
     let toolbar: Color
+    let currentLineBackground: String
 
     // Syntax highlighting colors
     let keyword: Color
@@ -124,6 +125,7 @@ struct EditorTheme: Identifiable, Equatable {
         lineNumberHighlight: Color(hex: "C6C6C6"),
         gutterBackground: Color(hex: "1E1E1E"),
         toolbar: Color(hex: "323233"),
+        currentLineBackground: "#2D2D2D",
         keyword: Color(hex: "569CD6"),
         string: Color(hex: "CE9178"),
         number: Color(hex: "B5CEA8"),
@@ -146,6 +148,7 @@ struct EditorTheme: Identifiable, Equatable {
         lineNumberHighlight: Color(hex: "0B244A"),
         gutterBackground: Color(hex: "F5F5F5"),
         toolbar: Color(hex: "F0F0F0"),
+        currentLineBackground: "#F5F5F5",
         keyword: Color(hex: "0000FF"),
         string: Color(hex: "A31515"),
         number: Color(hex: "098658"),
@@ -168,6 +171,7 @@ struct EditorTheme: Identifiable, Equatable {
         lineNumberHighlight: Color(hex: "FFFFFF"),
         gutterBackground: Color(hex: "0F0F23"),
         toolbar: Color(hex: "16162A"),
+        currentLineBackground: "#1F1F3A",
         keyword: Color(hex: "BD93F9"),
         string: Color(hex: "F1FA8C"),
         number: Color(hex: "BD93F9"),
@@ -190,6 +194,7 @@ struct EditorTheme: Identifiable, Equatable {
         lineNumberHighlight: Color(hex: "F8F8F0"),
         gutterBackground: Color(hex: "272822"),
         toolbar: Color(hex: "3E3D32"),
+        currentLineBackground: "#3E3D32",
         keyword: Color(hex: "F92672"),
         string: Color(hex: "E6DB74"),
         number: Color(hex: "AE81FF"),
@@ -212,6 +217,7 @@ struct EditorTheme: Identifiable, Equatable {
         lineNumberHighlight: Color(hex: "F8F8F2"),
         gutterBackground: Color(hex: "282A36"),
         toolbar: Color(hex: "343746"),
+        currentLineBackground: "#44475A",
         keyword: Color(hex: "FF79C6"),
         string: Color(hex: "F1FA8C"),
         number: Color(hex: "BD93F9"),
