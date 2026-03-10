@@ -295,7 +295,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Tab Bar | Visual tab bar above editor | ✅ Implemented | P0 |
 | New Tab | Create new tab | ✅ Implemented | P0 |
 | Close Tab | Close current tab | ✅ Implemented | P0 |
-| Reorder Tabs | Drag to reorder | ❌ Missing | P0 |
+| Reorder Tabs | Drag to reorder | ~ Deferred | P0 |
 
 #### F8: Code Folding
 
