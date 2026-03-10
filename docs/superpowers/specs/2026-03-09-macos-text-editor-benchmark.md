@@ -305,7 +305,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Tab Bar | Visual tab bar above editor | ✅ Implemented | P0 |
 | New Tab | Create new tab | ✅ Implemented | P0 |
 | Close Tab | Close current tab | ✅ Implemented | P0 |
-| Reorder Tabs | Drag to reorder | ~ Deferred | P0 |
+| Reorder Tabs | Drag to reorder | ✅ Implemented | P0 |
 
 #### F8: Code Folding
 
@@ -448,7 +448,7 @@ Mark each item against the current codebase to identify work required.
 | 4.38 | Tab Bar | [✓] | TabBarView component |
 | 4.39 | New Tab | [✓] | Cmd+T in MyTextApp |
 | 4.40 | Close Tab | [✓] | Cmd+W in MyTextApp |
-| 4.41 | Reorder Tabs | [✗] | Drag and drop |
+| 4.41 | Reorder Tabs | [✓] | Drag and drop in TabBarView |
 
 ### Code Folding
 

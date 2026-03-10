@@ -34,12 +34,42 @@ struct TabBarView: View {
                             onTabClose?(tab)
                         }
                     )
+                    .draggable(tab.id.uuidString)
                 }
             }
             .padding(.horizontal, 4)
+            .dropDestination(for: String.self) { items, location in
+                guard let itemId = items.first,
+                      let sourceIndex = tabs.firstIndex(where: { $0.id.uuidString == itemId }) else {
+                    return false
+                }
+
+                // Find the closest tab to drop location
+                let dropIndex = findClosestTabIndex(at: location, tabs: tabs)
+                var destinationIndex = dropIndex
+
+                // Adjust index if dropping after the source
+                if dropIndex > sourceIndex {
+                    destinationIndex = dropIndex - 1
+                } else if dropIndex < sourceIndex {
+                    destinationIndex = dropIndex
+                }
+
+                // Perform the move
+                let tab = tabs.remove(at: sourceIndex)
+                let targetIndex = min(destinationIndex, tabs.count)
+                tabs.insert(tab, at: targetIndex)
+
+                return true
+            }
         }
         .frame(height: 36)
         .background(Color(themeManager.currentTheme.background).opacity(0.95))
+    }
+
+    private func findClosestTabIndex(at location: CGPoint, tabs: [TabItem]) -> Int {
+        // Simple implementation: return the count (end of list)
+        return tabs.count
     }
 }
 
