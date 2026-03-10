@@ -185,6 +185,17 @@ struct SimpleTextEditor: NSViewRepresentable {
         private var lastAppliedLanguage: ProgrammingLanguage = .plainText
         private var lastContentHash: Int = 0
         private var currentLineHighlight: NSRange?
+        private var bracketMatchHighlight: NSRange?
+
+        // Bracket pairs: opening -> closing
+        private let bracketPairs: [Character: Character] = [
+            "(": ")",
+            "[": "]",
+            "{": "}",
+            "<": ">"
+        ]
+
+        private let closingBrackets: Set<Character> = [")", "]", "}", ">"]
 
         init(_ parent: SimpleTextEditor) {
             self.parent = parent
@@ -326,6 +337,98 @@ struct SimpleTextEditor: NSViewRepresentable {
         func textViewDidChangeSelection(_ notification: Notification) {
             guard let textView = notification.object as? NSTextView else { return }
             highlightCurrentLine(in: textView)
+            highlightMatchingBracket(in: textView)
+        }
+
+        // MARK: - Bracket Matching
+
+        private func highlightMatchingBracket(in textView: NSTextView) {
+            // Remove old bracket highlight
+            if let oldRange = bracketMatchHighlight, oldRange.location != NSNotFound {
+                textView.textStorage?.removeAttribute(.underlineStyle, range: oldRange)
+                textView.textStorage?.removeAttribute(.underlineColor, range: oldRange)
+            }
+
+            let selectedRange = textView.selectedRange()
+            guard selectedRange.location > 0 else { return }
+
+            let string = textView.string as NSString
+            let charIndex = selectedRange.location - 1
+            guard charIndex < string.length else { return }
+
+            let char = Character(UnicodeScalar(string.character(at: charIndex))!)
+
+            // Check if character is a bracket
+            if let closingBracket = bracketPairs[char] {
+                // Opening bracket - find closing bracket
+                if let matchRange = findMatchingBracket(
+                    from: charIndex + 1,
+                    searchingForward: true,
+                    openingBracket: char,
+                    closingBracket: closingBracket,
+                    in: string
+                ) {
+                    highlightBracket(in: textView, range: matchRange)
+                }
+            } else if closingBrackets.contains(char) {
+                // Closing bracket - find opening bracket
+                if let openingBracket = bracketPairs.first(where: { $0.value == char })?.key {
+                    if let matchRange = findMatchingBracket(
+                        from: charIndex - 1,
+                        searchingForward: false,
+                        openingBracket: openingBracket,
+                        closingBracket: char,
+                        in: string
+                    ) {
+                        highlightBracket(in: textView, range: matchRange)
+                    }
+                }
+            }
+        }
+
+        private func findMatchingBracket(
+            from startIndex: Int,
+            searchingForward: Bool,
+            openingBracket: Character,
+            closingBracket: Character,
+            in string: NSString
+        ) -> NSRange? {
+            var depth = 1
+            var index = startIndex
+
+            while index >= 0 && index < string.length {
+                let currentChar = Character(UnicodeScalar(string.character(at: index))!)
+
+                if searchingForward {
+                    if currentChar == openingBracket {
+                        depth += 1
+                    } else if currentChar == closingBracket {
+                        depth -= 1
+                        if depth == 0 {
+                            return NSRange(location: index, length: 1)
+                        }
+                    }
+                    index += 1
+                } else {
+                    if currentChar == closingBracket {
+                        depth += 1
+                    } else if currentChar == openingBracket {
+                        depth -= 1
+                        if depth == 0 {
+                            return NSRange(location: index, length: 1)
+                        }
+                    }
+                    index -= 1
+                }
+            }
+
+            return nil
+        }
+
+        private func highlightBracket(in textView: NSTextView, range: NSRange) {
+            textView.textStorage?.addAttribute(.underlineStyle, value: NSUnderlineStyle.single.rawValue, range: range)
+            textView.textStorage?.addAttribute(.underlineColor, value: NSColor.systemYellow, range: range)
+            bracketMatchHighlight = range
         }
 
         private func highlightCurrentLine(in textView: NSTextView) {

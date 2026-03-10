@@ -241,6 +241,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Line Operations | Duplicate line, move line up/down | ✅ Implemented | P0 |
 | Auto-indent | Maintain indentation on newline | ✅ Implemented | P0 |
 | Tab/Shift+Tab | Insert/remove indentation | ✅ Implemented | P0 |
+| Bracket Matching | Highlight matching brackets when cursor on one | ✅ Implemented | P1 |
 
 #### F3: Syntax Highlighting
 
@@ -365,6 +366,7 @@ Mark each item against the current codebase to identify work required.
 | 4.9 | Line Operations | [✓] | duplicateLine/moveLineUp/moveLineDown in EditorViewModel |
 | 4.10 | Auto-indent | [✓] | shouldInsertText in EditorView |
 | 4.11 | Tab/Shift+Tab | [✓] | Implemented |
+| 4.11a | Bracket Matching | [✓] | highlightMatchingBracket in EditorView Coordinator |
 
 ### Syntax Highlighting
 
