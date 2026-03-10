@@ -88,6 +88,11 @@ struct ContentView: View {
                     }
                     return nil
                 }
+                if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "h" {
+                    // Cmd+H: Replace (show find bar)
+                    showFindBar = true
+                    return nil
+                }
                 return event
             }
         }

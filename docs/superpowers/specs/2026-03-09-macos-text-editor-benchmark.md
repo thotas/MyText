@@ -270,8 +270,8 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Feature | Description | Status | Priority |
 |---------|-------------|--------|----------|
 | Line Numbers | Toggle gutter numbers | ✅ Implemented | P0 |
-| Current Line Highlight | Highlight active line | ❌ Missing | P0 |
-| Word Wrap | Wrap long lines | ❌ Missing | P0 |
+| Current Line Highlight | Highlight active line | ✅ Implemented | P0 |
+| Word Wrap | Wrap long lines | ✅ Implemented | P0 |
 | Sidebar Toggle | Show/hide sidebar | ✅ Implemented | P0 |
 | Theme Selection | Switch between themes | ✅ Implemented | P0 |
 
@@ -321,7 +321,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+F | Find | ✅ |
 | Cmd+G | Find Next | ✅ |
 | Cmd+Shift+G | Find Previous | ✅ |
-| Cmd+H | Replace | ❌ |
+| Cmd+H | Replace | ✅ |
 | Cmd+, | Settings | ✅ |
 | Cmd+P | Quick Open | ✅ |
 | Cmd+\\ | Toggle Sidebar | ✅ |
@@ -394,8 +394,8 @@ Mark each item against the current codebase to identify work required.
 | ID | Feature | Current Status | Implementation Notes |
 |----|---------|----------------|---------------------|
 | 4.25 | Line Numbers | [✓] | EditorView gutter |
-| 4.26 | Current Line Highlight | [✗] | Needs NSTextView delegate |
-| 4.27 | Word Wrap | [✗] | NSTextContainer |
+| 4.26 | Current Line Highlight | [✓] | EditorView coordinator |
+| 4.27 | Word Wrap | [✓] | NSTextContainer in updateNSView |
 | 4.28 | Sidebar Toggle | [✓] | Cmd+\\ works |
 | 4.29 | Theme Selection | [✓] | ThemeManager + Settings |
 
