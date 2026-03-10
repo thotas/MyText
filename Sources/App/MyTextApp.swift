@@ -37,6 +37,11 @@ struct MyTextApp: App {
                 }
                 .keyboardShortcut("o", modifiers: .command)
 
+                Button("Quick Open") {
+                    NotificationCenter.default.post(name: .quickOpen, object: nil)
+                }
+                .keyboardShortcut("p", modifiers: .command)
+
                 Divider()
 
                 Menu("Recent Files") {
@@ -149,6 +154,7 @@ extension Notification.Name {
     static let newDocument = Notification.Name("newDocument")
     static let openDocument = Notification.Name("openDocument")
     static let openFileFromURL = Notification.Name("openFileFromURL")
+    static let quickOpen = Notification.Name("quickOpen")
     static let saveDocument = Notification.Name("saveDocument")
     static let saveDocumentAs = Notification.Name("saveDocumentAs")
     static let openRecentFile = Notification.Name("openRecentFile")

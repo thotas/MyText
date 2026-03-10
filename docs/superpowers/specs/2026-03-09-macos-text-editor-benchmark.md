@@ -323,7 +323,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+Shift+G | Find Previous | ❌ |
 | Cmd+H | Replace | ❌ |
 | Cmd+, | Settings | ✅ |
-| Cmd+P | Quick Open | ❌ |
+| Cmd+P | Quick Open | ✅ |
 | Cmd+\\ | Toggle Sidebar | ✅ |
 | Cmd+L | Go to Line | ❌ |
 | Cmd+Shift+L | Select Line | ❌ |

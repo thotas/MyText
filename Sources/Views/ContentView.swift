@@ -4,6 +4,7 @@ struct ContentView: View {
     @StateObject private var themeManager = ThemeManager.shared
     @StateObject private var viewModel = EditorViewModel()
     @State private var showFindBar = false
+    @State private var showQuickOpen = false
     @State private var showSidebar = true
     @State private var tabs: [TabItem] = []
     @State private var selectedTab: TabItem?
@@ -59,6 +60,18 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showFindBar) {
             FindBarView(viewModel: viewModel, isPresented: $showFindBar, themeManager: themeManager)
+        }
+        .sheet(isPresented: $showQuickOpen) {
+            QuickOpenView(isPresented: $showQuickOpen, themeManager: themeManager)
+        }
+        .onAppear {
+            NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+                if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "p" {
+                    showQuickOpen = true
+                    return nil
+                }
+                return event
+            }
         }
     }
 
@@ -139,6 +152,11 @@ struct ContentView: View {
             }
         }
 
+        // Handle Quick Open (Cmd+P)
+        let observerQuickOpen = NotificationCenter.default.addObserver(forName: .quickOpen, object: nil, queue: .main) { _ in
+            self.showQuickOpen = true
+        }
+
         let observer2 = NotificationCenter.default.addObserver(forName: .openDocument, object: nil, queue: .main) { _ in
             self.viewModel.openDocument()
             // If file was loaded, create a new tab for it
@@ -206,7 +224,7 @@ struct ContentView: View {
             self.selectPreviousTab()
         }
 
-        notificationObservers = [observer1, observerOpenFile, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9]
+        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9]
     }
 
     private func removeNotificationObservers() {
