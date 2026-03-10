@@ -2,6 +2,19 @@ import SwiftUI
 import Combine
 import AppKit
 
+// MARK: - Fold Region
+
+struct FoldRegion: Identifiable {
+    let id = UUID()
+    let startLine: Int
+    let endLine: Int
+    var isFolded: Bool
+
+    var lineCount: Int {
+        endLine - startLine + 1
+    }
+}
+
 @MainActor
 class EditorViewModel: ObservableObject {
     @Published var document: TextDocument
@@ -11,6 +24,7 @@ class EditorViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var wordWrap: Bool = false
+    @Published var foldRegions: [FoldRegion] = []
 
     // Weak reference to text view for line operations
     weak var textView: NSTextView?
@@ -26,6 +40,71 @@ class EditorViewModel: ObservableObject {
         self.document = document
         self.syntaxHighlighter = SyntaxHighlighter()
         self.wordWrap = UserDefaults.standard.bool(forKey: "wordWrap")
+    }
+
+    // MARK: - Code Folding
+
+    func detectFoldRegions() {
+        foldRegions = syntaxHighlighter.detectFoldRegions(
+            in: document.content,
+            language: detectedLanguage
+        )
+    }
+
+    func toggleFold(at line: Int) {
+        // Find if this line is a fold start or end
+        if let index = foldRegions.firstIndex(where: { $0.startLine == line }) {
+            foldRegions[index].isFolded.toggle()
+        } else if let index = foldRegions.firstIndex(where: { $0.endLine == line }) {
+            foldRegions[index].isFolded.toggle()
+        }
+        applyFolds()
+    }
+
+    func foldAll() {
+        for index in foldRegions.indices {
+            foldRegions[index].isFolded = true
+        }
+        applyFolds()
+    }
+
+    func unfoldAll() {
+        for index in foldRegions.indices {
+            foldRegions[index].isFolded = false
+        }
+        applyFolds()
+    }
+
+    func isLineFolded(_ line: Int) -> Bool {
+        for region in foldRegions where region.isFolded {
+            if line > region.startLine && line <= region.endLine {
+                return true
+            }
+        }
+        return false
+    }
+
+    func getFoldIndicator(for line: Int) -> FoldIndicator? {
+        for region in foldRegions {
+            if region.startLine == line {
+                return region.isFolded ? .expanded : .collapsed
+            }
+            if region.endLine == line && region.isFolded {
+                return .end
+            }
+        }
+        return nil
+    }
+
+    private func applyFolds() {
+        // Notify the text view to update visible ranges
+        NotificationCenter.default.post(name: .foldStateChanged, object: nil)
+    }
+
+    enum FoldIndicator {
+        case collapsed
+        case expanded
+        case end
     }
 
     func toggleWordWrap() {

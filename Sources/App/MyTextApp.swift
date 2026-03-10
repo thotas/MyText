@@ -104,6 +104,23 @@ struct MyTextApp: App {
                     NotificationCenter.default.post(name: .toggleComment, object: nil)
                 }
                 .keyboardShortcut("/", modifiers: .command)
+
+                Divider()
+
+                Button("Toggle Fold") {
+                    NotificationCenter.default.post(name: .toggleFold, object: nil)
+                }
+                .keyboardShortcut("\\", modifiers: .command)
+
+                Button("Fold All") {
+                    NotificationCenter.default.post(name: .foldAll, object: nil)
+                }
+                .keyboardShortcut("0", modifiers: [.command, .option])
+
+                Button("Unfold All") {
+                    NotificationCenter.default.post(name: .unfoldAll, object: nil)
+                }
+                .keyboardShortcut("=", modifiers: [.command, .option])
             }
         }
 
@@ -137,4 +154,8 @@ extension Notification.Name {
     static let closeTab = Notification.Name("closeTab")
     static let nextTab = Notification.Name("nextTab")
     static let previousTab = Notification.Name("previousTab")
+    static let foldStateChanged = Notification.Name("foldStateChanged")
+    static let toggleFold = Notification.Name("toggleFold")
+    static let foldAll = Notification.Name("foldAll")
+    static let unfoldAll = Notification.Name("unfoldAll")
 }

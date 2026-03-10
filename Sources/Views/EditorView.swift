@@ -6,8 +6,76 @@ struct EditorView: View {
     var themeManager: ThemeManager
 
     var body: some View {
-        SimpleTextEditor(viewModel: viewModel, themeManager: themeManager)
-            .background(Color(themeManager.currentTheme.editorBackground))
+        HStack(spacing: 0) {
+            FoldGutterView(
+                viewModel: viewModel,
+                themeManager: themeManager,
+                onFoldClick: { line in
+                    viewModel.toggleFold(at: line)
+                }
+            )
+            SimpleTextEditor(viewModel: viewModel, themeManager: themeManager)
+        }
+        .background(Color(themeManager.currentTheme.editorBackground))
+    }
+}
+
+// MARK: - Fold Gutter View
+
+struct FoldGutterView: View {
+    @ObservedObject var viewModel: EditorViewModel
+    var themeManager: ThemeManager
+    var onFoldClick: (Int) -> Void
+
+    private let gutterWidth: CGFloat = 24
+    private let lineHeight: CGFloat = 16
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(viewModel.document.content.components(separatedBy: "\n").enumerated()), id: \.offset) { index, _ in
+                let lineNumber = index + 1
+                FoldIndicatorView(
+                    lineNumber: lineNumber,
+                    indicator: viewModel.getFoldIndicator(for: lineNumber),
+                    isFolded: viewModel.isLineFolded(lineNumber),
+                    onTap: { onFoldClick(lineNumber) }
+                )
+                .frame(height: lineHeight)
+            }
+        }
+        .frame(width: gutterWidth)
+        .background(Color(themeManager.currentTheme.gutterBackground))
+    }
+}
+
+struct FoldIndicatorView: View {
+    let lineNumber: Int
+    let indicator: EditorViewModel.FoldIndicator?
+    let isFolded: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        ZStack {
+            if let indicator = indicator {
+                switch indicator {
+                case .collapsed:
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .onTapGesture { onTap() }
+                case .expanded:
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundColor(.secondary)
+                        .onTapGesture { onTap() }
+                case .end:
+                    Rectangle()
+                        .fill(Color.secondary.opacity(0.3))
+                        .frame(width: 2, height: 12)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
@@ -172,6 +240,49 @@ struct SimpleTextEditor: NSViewRepresentable {
                     self.reapplyHighlighting()
                 }
             }
+
+            NotificationCenter.default.addObserver(
+                forName: .toggleFold,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                Task { @MainActor in
+                    self.toggleFoldAtCursor()
+                }
+            }
+
+            NotificationCenter.default.addObserver(
+                forName: .foldAll,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                Task { @MainActor in
+                    self.parent.viewModel.foldAll()
+                }
+            }
+
+            NotificationCenter.default.addObserver(
+                forName: .unfoldAll,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                Task { @MainActor in
+                    self.parent.viewModel.unfoldAll()
+                }
+            }
+        }
+
+        private func toggleFoldAtCursor() {
+            guard let textView = parent.viewModel.textView else { return }
+            let cursorPos = textView.selectedRange().location
+            let string = textView.string as NSString
+            let lineRange = string.lineRange(for: NSRange(location: cursorPos, length: 0))
+            let lineNumber = string.substring(to: lineRange.location).components(separatedBy: "\n").count
+
+            parent.viewModel.toggleFold(at: lineNumber)
         }
 
         private func reapplyHighlighting() {
@@ -246,6 +357,9 @@ struct SimpleTextEditor: NSViewRepresentable {
             lastAppliedLanguage = language
             lastContentHash = contentHash
 
+            // Detect fold regions
+            parent.viewModel.detectFoldRegions()
+
             // Skip highlighting for plain text
             guard language != .plainText else { return }
 
@@ -263,6 +377,9 @@ struct SimpleTextEditor: NSViewRepresentable {
 
             // Apply highlighting
             textView.textStorage?.setAttributedString(highlighted)
+
+            // Apply fold styling to folded lines
+            applyFoldStyling(to: textView)
 
             // Restore selection
             if selectedRange.location <= textView.string.count {
@@ -307,6 +424,40 @@ struct SimpleTextEditor: NSViewRepresentable {
                 }
             }
             return indent
+        }
+
+        // MARK: - Fold Styling
+
+        private func applyFoldStyling(to textView: NSTextView) {
+            let content = textView.string
+            let lines = content.components(separatedBy: "\n")
+
+            for region in parent.viewModel.foldRegions where region.isFolded {
+                // Apply styling to folded lines (lines between start and end)
+                for lineIndex in (region.startLine)..<region.endLine {
+                    guard lineIndex < lines.count else { continue }
+
+                    let lineStart = lines[0..<lineIndex].map { $0.count + 1 }.reduce(0, +)
+                    let lineLength = lines[lineIndex].count
+
+                    if lineLength > 0 {
+                        let range = NSRange(location: lineStart, length: lineLength)
+                        // Add subtle background to indicate folded region
+                        let foldColor = NSColor.secondaryLabelColor.withAlphaComponent(0.1)
+                        textView.textStorage?.addAttribute(.backgroundColor, value: foldColor, range: range)
+                    }
+                }
+
+                // Add ellipsis indicator at the start line
+                if region.startLine <= lines.count {
+                    let lineStart = lines[0..<(region.startLine - 1)].map { $0.count + 1 }.reduce(0, +)
+                    let lineLength = lines[region.startLine - 1].count
+                    if lineLength > 0 {
+                        let range = NSRange(location: lineStart, length: lineLength)
+                        // Can add a marker or styling here
+                    }
+                }
+            }
         }
     }
 }

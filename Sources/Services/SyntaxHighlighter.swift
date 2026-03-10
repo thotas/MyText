@@ -150,6 +150,151 @@ class SyntaxHighlighter {
             return nil
         }
     }
+
+    // MARK: - Fold Region Detection
+
+    func detectFoldRegions(in content: String, language: ProgrammingLanguage) -> [FoldRegion] {
+        var regions: [FoldRegion] = []
+
+        let lines = content.components(separatedBy: "\n")
+        var stack: [(line: Int, indent: Int)] = []
+
+        for (lineIndex, line) in lines.enumerated() {
+            let currentLine = lineIndex + 1
+            let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+            let indent = line.prefix(while: { $0 == " " || $0 == "\t" }).count
+
+            // Skip empty lines and comments
+            if trimmedLine.isEmpty || trimmedLine.hasPrefix("#") || trimmedLine.hasPrefix("//") || trimmedLine.hasPrefix("--") {
+                continue
+            }
+
+            // Check for foldable keywords based on language
+            let isFoldStart = isFoldStart(trimmedLine: trimmedLine, language: language)
+
+            if isFoldStart {
+                // Push to stack
+                stack.append((line: currentLine, indent: indent))
+            }
+
+            // Check for fold end
+            let isFoldEnd = isFoldEnd(trimmedLine: trimmedLine, language: language)
+
+            if isFoldEnd {
+                // Find matching start
+                while let last = stack.popLast() {
+                    if last.indent < indent {
+                        // Found matching start
+                        regions.append(FoldRegion(
+                            startLine: last.line,
+                            endLine: currentLine,
+                            isFolded: false
+                        ))
+                        break
+                    }
+                }
+            }
+        }
+
+        return regions
+    }
+
+    private func isFoldStart(trimmedLine: String, language: ProgrammingLanguage) -> Bool {
+        switch language {
+        case .python:
+            // Function or class definitions
+            let functionPattern = "^def\\s+[a-zA-Z_][a-zA-Z0-9_]*"
+            let classPattern = "^class\\s+[a-zA-Z_][a-zA-Z0-9_]*"
+            let tryPattern = "^try\\s*:"
+            let exceptPattern = "^except\\s*:"
+            let finallyPattern = "^finally\\s*:"
+            let withPattern = "^with\\s+"
+            let forPattern = "^for\\s+"
+            let whilePattern = "^while\\s+"
+            let ifPattern = "^if\\s+"
+            let elifPattern = "^elif\\s+"
+            let elsePattern = "^else\\s*:"
+
+            return matchesPattern(trimmedLine, pattern: functionPattern) ||
+                   matchesPattern(trimmedLine, pattern: classPattern) ||
+                   matchesPattern(trimmedLine, pattern: tryPattern) ||
+                   matchesPattern(trimmedLine, pattern: exceptPattern) ||
+                   matchesPattern(trimmedLine, pattern: finallyPattern) ||
+                   matchesPattern(trimmedLine, pattern: withPattern) ||
+                   matchesPattern(trimmedLine, pattern: forPattern) ||
+                   matchesPattern(trimmedLine, pattern: whilePattern) ||
+                   matchesPattern(trimmedLine, pattern: ifPattern) ||
+                   matchesPattern(trimmedLine, pattern: elifPattern) ||
+                   matchesPattern(trimmedLine, pattern: elsePattern)
+
+        case .shell:
+            // Function definitions
+            let functionPattern = "^[a-zA-Z_][a-zA-Z0-9_]*\\s*\\(\\)\\s*\\{"
+            let ifPattern = "^if\\s+"
+            let forPattern = "^for\\s+"
+            let whilePattern = "^while\\s+"
+            let casePattern = "^case\\s+"
+
+            return matchesPattern(trimmedLine, pattern: functionPattern) ||
+                   matchesPattern(trimmedLine, pattern: ifPattern) ||
+                   matchesPattern(trimmedLine, pattern: forPattern) ||
+                   matchesPattern(trimmedLine, pattern: whilePattern) ||
+                   matchesPattern(trimmedLine, pattern: casePattern)
+
+        case .sql:
+            // BEGIN, CREATE, SELECT blocks
+            let beginPattern = "^BEGIN\\s*$"
+            let createPattern = "^CREATE\\s+(PROCEDURE|FUNCTION|TRIGGER|VIEW|TABLE)"
+            let selectPattern = "^SELECT\\s+"
+
+            return matchesPattern(trimmedLine, pattern: beginPattern, caseInsensitive: true) ||
+                   matchesPattern(trimmedLine, pattern: createPattern, caseInsensitive: true) ||
+                   matchesPattern(trimmedLine, pattern: selectPattern, caseInsensitive: true)
+
+        case .plainText:
+            return false
+        }
+    }
+
+    private func isFoldEnd(trimmedLine: String, language: ProgrammingLanguage) -> Bool {
+        switch language {
+        case .python:
+            let endPattern = "^(return|break|continue|pass|raise|yield)\\b"
+            return matchesPattern(trimmedLine, pattern: endPattern)
+
+        case .shell:
+            let fiPattern = "^fi\\s*$"
+            let donePattern = "^done\\s*$"
+            let esPattern = "^es\\s*$"
+            let closeBrace = "^\\}"
+
+            return matchesPattern(trimmedLine, pattern: fiPattern) ||
+                   matchesPattern(trimmedLine, pattern: donePattern) ||
+                   matchesPattern(trimmedLine, pattern: esPattern) ||
+                   matchesPattern(trimmedLine, pattern: closeBrace)
+
+        case .sql:
+            let endPattern = "^END\\s*;?$"
+            return matchesPattern(trimmedLine, pattern: endPattern, caseInsensitive: true)
+
+        case .plainText:
+            return false
+        }
+    }
+
+    private func matchesPattern(_ string: String, pattern: String, caseInsensitive: Bool = false) -> Bool {
+        var options: NSRegularExpression.Options = [.anchorsMatchLines]
+        if caseInsensitive {
+            options.insert(.caseInsensitive)
+        }
+
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: options) else {
+            return false
+        }
+
+        let range = NSRange(location: 0, length: string.utf16.count)
+        return regex.firstMatch(in: string, options: [], range: range) != nil
+    }
 }
 
 struct LanguageDefinition {
