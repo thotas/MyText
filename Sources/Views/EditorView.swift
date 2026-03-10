@@ -62,6 +62,9 @@ struct SimpleTextEditor: NSViewRepresentable {
         // Set delegate
         textView.delegate = context.coordinator
 
+        // Set textView reference for line operations
+        viewModel.setTextView(textView)
+
         // Apply initial highlighting
         context.coordinator.applyHighlighting(to: textView)
 
@@ -101,6 +104,76 @@ struct SimpleTextEditor: NSViewRepresentable {
 
         init(_ parent: SimpleTextEditor) {
             self.parent = parent
+            super.init()
+            setupNotificationObservers()
+        }
+
+        private func setupNotificationObservers() {
+            NotificationCenter.default.addObserver(
+                forName: .duplicateLine,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                Task { @MainActor in
+                    self.parent.viewModel.duplicateLine()
+                    self.reapplyHighlighting()
+                }
+            }
+
+            NotificationCenter.default.addObserver(
+                forName: .moveLineUp,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                Task { @MainActor in
+                    self.parent.viewModel.moveLineUp()
+                    self.reapplyHighlighting()
+                }
+            }
+
+            NotificationCenter.default.addObserver(
+                forName: .moveLineDown,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                Task { @MainActor in
+                    self.parent.viewModel.moveLineDown()
+                    self.reapplyHighlighting()
+                }
+            }
+
+            NotificationCenter.default.addObserver(
+                forName: .toggleComment,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                Task { @MainActor in
+                    self.parent.viewModel.toggleComment()
+                    self.reapplyHighlighting()
+                }
+            }
+        }
+
+        private func reapplyHighlighting() {
+            guard let textView = parent.viewModel.textView else { return }
+            let language = parent.viewModel.detectedLanguage
+            let theme = parent.viewModel.themeManager.currentTheme
+
+            parent.viewModel.syntaxHighlighter.highlightAsync(
+                parent.viewModel.document.content,
+                language: language,
+                theme: theme
+            ) { [weak self] highlighted in
+                guard let textView = self?.parent.viewModel.textView,
+                      let storage = textView.textStorage else { return }
+                let selectedRange = textView.selectedRange()
+                storage.setAttributedString(highlighted)
+                textView.setSelectedRange(selectedRange)
+            }
         }
 
         func textDidChange(_ notification: Notification) {

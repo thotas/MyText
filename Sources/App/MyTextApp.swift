@@ -55,6 +55,28 @@ struct MyTextApp: App {
                     NSApp.sendAction(#selector(NSText.selectAll(_:)), to: nil, from: nil)
                 }
                 .keyboardShortcut("a", modifiers: .command)
+
+                Divider()
+
+                Button("Duplicate Line") {
+                    NotificationCenter.default.post(name: .duplicateLine, object: nil)
+                }
+                .keyboardShortcut("d", modifiers: .command)
+
+                Button("Move Line Up") {
+                    NotificationCenter.default.post(name: .moveLineUp, object: nil)
+                }
+                .keyboardShortcut(.upArrow, modifiers: [.command, .shift])
+
+                Button("Move Line Down") {
+                    NotificationCenter.default.post(name: .moveLineDown, object: nil)
+                }
+                .keyboardShortcut(.downArrow, modifiers: [.command, .shift])
+
+                Button("Toggle Comment") {
+                    NotificationCenter.default.post(name: .toggleComment, object: nil)
+                }
+                .keyboardShortcut("/", modifiers: .command)
             }
         }
 
@@ -80,4 +102,8 @@ extension Notification.Name {
     static let saveDocument = Notification.Name("saveDocument")
     static let saveDocumentAs = Notification.Name("saveDocumentAs")
     static let openRecentFile = Notification.Name("openRecentFile")
+    static let duplicateLine = Notification.Name("duplicateLine")
+    static let moveLineUp = Notification.Name("moveLineUp")
+    static let moveLineDown = Notification.Name("moveLineDown")
+    static let toggleComment = Notification.Name("toggleComment")
 }

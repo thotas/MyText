@@ -87,6 +87,16 @@ class SyntaxHighlighter {
         return attributedString
     }
 
+    func highlightAsync(_ text: String, language: ProgrammingLanguage, theme: EditorTheme, completion: @escaping (NSAttributedString) -> Void) {
+        DispatchQueue.global(qos: .userInteractive).async { [weak self] in
+            guard let self = self else { return }
+            let result = self.highlight(text, language: language, theme: theme)
+            DispatchQueue.main.async {
+                completion(result)
+            }
+        }
+    }
+
     private func applyPattern(_ patternDef: PatternDefinition, to attributedString: NSMutableAttributedString, text: String, theme: EditorTheme) {
         guard let regex = try? NSRegularExpression(pattern: patternDef.pattern, options: patternDef.patternOptions) else {
             return

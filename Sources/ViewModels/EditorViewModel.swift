@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import AppKit
 
 @MainActor
 class EditorViewModel: ObservableObject {
@@ -10,12 +11,19 @@ class EditorViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
 
+    // Weak reference to text view for line operations
+    weak var textView: NSTextView?
+
     let syntaxHighlighter: SyntaxHighlighter
     let themeManager = ThemeManager.shared
 
     init(document: TextDocument = TextDocument(content: "")) {
         self.document = document
         self.syntaxHighlighter = SyntaxHighlighter()
+    }
+
+    func setTextView(_ textView: NSTextView?) {
+        self.textView = textView
     }
 
     func updateCursorPosition() {
@@ -127,6 +135,162 @@ class EditorViewModel: ObservableObject {
         content.insert(contentsOf: text, at: index)
         document.content = content
         document.isModified = true
+    }
+
+    // MARK: - Line Operations
+
+    func duplicateLine() {
+        guard let textView = textView else { return }
+        let content = textView.string
+        let cursorPos = textView.selectedRange().location
+
+        let lines = content.components(separatedBy: "\n")
+        var currentPos = 0
+        var lineIndex = 0
+
+        for (index, line) in lines.enumerated() {
+            if currentPos + line.count >= cursorPos {
+                lineIndex = index
+                break
+            }
+            currentPos += line.count + 1
+        }
+
+        guard lineIndex < lines.count else { return }
+        let line = lines[lineIndex]
+        var newLines = lines
+        newLines.insert(line, at: lineIndex + 1)
+        let newContent = newLines.joined(separator: "\n")
+        textView.string = newContent
+        document.content = newContent
+        document.isModified = true
+
+        // Position cursor after the duplicated line
+        var newCursorPos = 0
+        for i in 0...lineIndex + 1 {
+            if i < newLines.count {
+                newCursorPos += newLines[i].count + 1
+            }
+        }
+        textView.setSelectedRange(NSRange(location: min(newCursorPos, newContent.count), length: 0))
+    }
+
+    func moveLineUp() {
+        guard let textView = textView else { return }
+        let content = textView.string
+        let cursorPos = textView.selectedRange().location
+
+        let lines = content.components(separatedBy: "\n")
+        var currentPos = 0
+        var lineIndex = 0
+
+        for (index, line) in lines.enumerated() {
+            if currentPos + line.count >= cursorPos {
+                lineIndex = index
+                break
+            }
+            currentPos += line.count + 1
+        }
+
+        guard lineIndex > 0 && lineIndex < lines.count else { return }
+
+        var newLines = lines
+        newLines.swapAt(lineIndex, lineIndex - 1)
+        let newContent = newLines.joined(separator: "\n")
+        textView.string = newContent
+        document.content = newContent
+        document.isModified = true
+
+        // Calculate new cursor position
+        var newCursorPos = 0
+        for i in 0..<(lineIndex - 1) {
+            newCursorPos += newLines[i].count + 1
+        }
+        newCursorPos += newLines[lineIndex - 1].count
+        textView.setSelectedRange(NSRange(location: min(newCursorPos, newContent.count), length: 0))
+    }
+
+    func moveLineDown() {
+        guard let textView = textView else { return }
+        let content = textView.string
+        let cursorPos = textView.selectedRange().location
+
+        let lines = content.components(separatedBy: "\n")
+        var currentPos = 0
+        var lineIndex = 0
+
+        for (index, line) in lines.enumerated() {
+            if currentPos + line.count >= cursorPos {
+                lineIndex = index
+                break
+            }
+            currentPos += line.count + 1
+        }
+
+        guard lineIndex < lines.count - 1 else { return }
+
+        var newLines = lines
+        newLines.swapAt(lineIndex, lineIndex + 1)
+        let newContent = newLines.joined(separator: "\n")
+        textView.string = newContent
+        document.content = newContent
+        document.isModified = true
+
+        // Calculate new cursor position
+        var newCursorPos = 0
+        for i in 0...(lineIndex + 1) {
+            newCursorPos += newLines[i].count + 1
+        }
+        newCursorPos += newLines[lineIndex + 1].count
+        textView.setSelectedRange(NSRange(location: min(newCursorPos, newContent.count), length: 0))
+    }
+
+    func toggleComment() {
+        guard let textView = textView else { return }
+        let content = textView.string
+        let cursorPos = textView.selectedRange().location
+
+        let lines = content.components(separatedBy: "\n")
+        var currentPos = 0
+        var lineIndex = 0
+
+        for (index, line) in lines.enumerated() {
+            if currentPos + line.count >= cursorPos {
+                lineIndex = index
+                break
+            }
+            currentPos += line.count + 1
+        }
+
+        guard lineIndex < lines.count else { return }
+
+        var newLines = lines
+        let line = lines[lineIndex]
+
+        // Determine if line is commented
+        let trimmedLine = line.trimmingCharacters(in: .whitespaces)
+        if trimmedLine.hasPrefix("//") {
+            // Remove comment
+            let commentStart = line.firstIndex(of: "/")!
+            newLines[lineIndex] = String(line[..<commentStart]) + String(line[line.index(after: commentStart)...])
+            newLines[lineIndex] = String(newLines[lineIndex].dropFirst())
+        } else {
+            // Add comment at start (after any leading whitespace)
+            let leadingWhitespace = String(line.prefix(while: { $0.isWhitespace }))
+            newLines[lineIndex] = leadingWhitespace + "//" + String(line.dropFirst(leadingWhitespace.count))
+        }
+
+        let newContent = newLines.joined(separator: "\n")
+        textView.string = newContent
+        document.content = newContent
+        document.isModified = true
+
+        // Position cursor after the comment
+        var newCursorPos = 0
+        for i in 0...lineIndex {
+            newCursorPos += newLines[i].count + 1
+        }
+        textView.setSelectedRange(NSRange(location: min(newCursorPos, newContent.count), length: 0))
     }
 }
 
