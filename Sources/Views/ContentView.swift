@@ -23,7 +23,18 @@ struct ContentView: View {
             VStack(spacing: 0) {
                 // Tab bar (show when multiple tabs)
                 if tabs.count > 1 {
-                    TabBarView(tabs: $tabs, selectedTab: $selectedTab)
+                    TabBarView(
+                        tabs: $tabs,
+                        selectedTab: $selectedTab,
+                        onTabClose: { tab in
+                            self.closeTab(tab)
+                        },
+                        onSelectionChange: { tab in
+                            if let tab = tab {
+                                self.viewModel.document = tab.document
+                            }
+                        }
+                    )
                 }
 
                 // Toolbar

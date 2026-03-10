@@ -15,6 +15,8 @@ struct TabBarView: View {
     @Binding var tabs: [TabItem]
     @Binding var selectedTab: TabItem?
     @ObservedObject var themeManager = ThemeManager.shared
+    var onTabClose: ((TabItem) -> Void)?
+    var onSelectionChange: ((TabItem?) -> Void)?
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -26,9 +28,10 @@ struct TabBarView: View {
                         themeManager: themeManager,
                         onSelect: {
                             selectedTab = tab
+                            onSelectionChange?(tab)
                         },
                         onClose: {
-                            closeTab(tab)
+                            onTabClose?(tab)
                         }
                     )
                 }
@@ -37,22 +40,6 @@ struct TabBarView: View {
         }
         .frame(height: 36)
         .background(Color(themeManager.currentTheme.background).opacity(0.95))
-    }
-
-    private func closeTab(_ tab: TabItem) {
-        guard let index = tabs.firstIndex(where: { $0.id == tab.id }) else { return }
-
-        tabs.remove(at: index)
-
-        if selectedTab?.id == tab.id {
-            if tabs.isEmpty {
-                selectedTab = nil
-            } else if index >= tabs.count {
-                selectedTab = tabs.last
-            } else {
-                selectedTab = tabs[index]
-            }
-        }
     }
 }
 
