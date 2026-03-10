@@ -61,6 +61,25 @@ class EditorViewModel: ObservableObject {
         applyFolds()
     }
 
+    func toggleFoldAtCursor() {
+        guard let textView = textView else { return }
+        let cursorPos = textView.selectedRange().location
+        let lineNumber = getLineNumber(at: cursorPos)
+        toggleFold(at: lineNumber)
+    }
+
+    private func getLineNumber(at position: Int) -> Int {
+        let content = textView?.string ?? ""
+        var line = 1
+        var currentPos = 0
+        for char in content {
+            if currentPos >= position { break }
+            if char == "\n" { line += 1 }
+            currentPos += 1
+        }
+        return line
+    }
+
     func foldAll() {
         for index in foldRegions.indices {
             foldRegions[index].isFolded = true

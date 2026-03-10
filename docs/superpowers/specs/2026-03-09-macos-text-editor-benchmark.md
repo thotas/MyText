@@ -327,11 +327,11 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+\\ | Toggle Sidebar | ✅ |
 | Cmd+L | Go to Line | ✅ |
 | Cmd+Shift+L | Select Line | ❌ |
-| Cmd+D | Duplicate Line | ❌ |
-| Cmd+Shift+D | Move Line Down | ❌ |
-| Cmd+Shift+Up | Move Line Up | ❌ |
-| Cmd+Shift+Down | Move Line Down | ❌ |
-| Cmd+/ | Toggle Comment | ❌ |
+| Cmd+D | Duplicate Line | ✅ |
+| Cmd+Shift+D | Move Line Down | ✅ |
+| Cmd+Shift+Up | Move Line Up | ✅ |
+| Cmd+Shift+Down | Move Line Down | ✅ |
+| Cmd+/ | Toggle Comment | ✅ |
 | Cmd+Tab | Next Tab | ❌ |
 | Cmd+Shift+Tab | Previous Tab | ❌ |
 

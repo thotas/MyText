@@ -260,7 +260,35 @@ struct ContentView: View {
             // findPrevious will be triggered by FindBarView
         }
 
-        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12]
+        let observer13 = NotificationCenter.default.addObserver(forName: .duplicateLine, object: nil, queue: .main) { _ in
+            self.viewModel.duplicateLine()
+        }
+
+        let observer14 = NotificationCenter.default.addObserver(forName: .moveLineUp, object: nil, queue: .main) { _ in
+            self.viewModel.moveLineUp()
+        }
+
+        let observer15 = NotificationCenter.default.addObserver(forName: .moveLineDown, object: nil, queue: .main) { _ in
+            self.viewModel.moveLineDown()
+        }
+
+        let observer16 = NotificationCenter.default.addObserver(forName: .toggleComment, object: nil, queue: .main) { _ in
+            self.viewModel.toggleComment()
+        }
+
+        let observer17 = NotificationCenter.default.addObserver(forName: .toggleFold, object: nil, queue: .main) { _ in
+            self.viewModel.toggleFoldAtCursor()
+        }
+
+        let observer18 = NotificationCenter.default.addObserver(forName: .foldAll, object: nil, queue: .main) { _ in
+            self.viewModel.foldAll()
+        }
+
+        let observer19 = NotificationCenter.default.addObserver(forName: .unfoldAll, object: nil, queue: .main) { _ in
+            self.viewModel.unfoldAll()
+        }
+
+        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19]
     }
 
     private func removeNotificationObservers() {
