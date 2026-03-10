@@ -116,10 +116,13 @@ struct ContentView: View {
         let observer2 = NotificationCenter.default.addObserver(forName: .openDocument, object: nil, queue: .main) { _ in
             self.viewModel.openDocument()
             // If file was loaded, create a new tab for it
+            // Sync the document to ensure editor gets updated content
             if let url = self.viewModel.document.fileURL {
                 let tabItem = TabItem(title: self.viewModel.document.fileName, document: self.viewModel.document, isModified: false)
                 self.tabs.append(tabItem)
                 self.selectedTab = tabItem
+                // Force sync to ensure SimpleTextEditor updates
+                self.viewModel.document = tabItem.document
             }
         }
 
@@ -151,6 +154,8 @@ struct ContentView: View {
                 let tabItem = TabItem(title: self.viewModel.document.fileName, document: self.viewModel.document, isModified: false)
                 self.tabs.append(tabItem)
                 self.selectedTab = tabItem
+                // Force sync to ensure SimpleTextEditor updates
+                self.viewModel.document = tabItem.document
             }
         }
 
