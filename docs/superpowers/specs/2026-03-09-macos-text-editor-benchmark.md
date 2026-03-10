@@ -230,7 +230,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Save As | Save to new path | ✅ Implemented | P0 |
 | Recent Files | Track last 10 opened files | ✅ Implemented | P0 |
 | Multiple Windows | Open same document in multiple windows | ❌ Missing | P0 |
-| Trim Trailing Whitespace | Remove trailing whitespace on save | ✅ Implemented | P1 |
+| Trim Trailing Whitespace | Remove trailing whitespace on save + manual command | ✅ Implemented | P1 |
 
 #### F2: Text Editing
 
@@ -345,6 +345,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+Opt+U+Shift | Lowercase Selection | ✅ |
 | Cmd+Opt+S | Sort Lines | ✅ |
 | Cmd+Shift+I | Show Invisibles | ✅ |
+| Cmd+Shift+Option+T | Trim Trailing Whitespace | ✅ |
 
 ---
 

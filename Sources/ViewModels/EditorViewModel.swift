@@ -255,6 +255,14 @@ class EditorViewModel: ObservableObject {
         return trimmedLines.joined(separator: "\n")
     }
 
+    func trimTrailingWhitespaceCommand() {
+        let trimmed = trimTrailingWhitespace(from: document.content)
+        if trimmed != document.content {
+            document.content = trimmed
+            document.isModified = true
+        }
+    }
+
     func updateContent(_ newContent: String) {
         document.content = newContent
         document.isModified = true

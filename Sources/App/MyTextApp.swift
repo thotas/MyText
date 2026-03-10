@@ -67,6 +67,13 @@ struct MyTextApp: App {
 
                 Divider()
 
+                Button("Trim Trailing Whitespace") {
+                    NotificationCenter.default.post(name: .trimTrailingWhitespace, object: nil)
+                }
+                .keyboardShortcut("t", modifiers: [.command, .shift, .option])
+
+                Divider()
+
                 Button("Close Tab") {
                     NotificationCenter.default.post(name: .closeTab, object: nil)
                 }
@@ -237,4 +244,5 @@ extension Notification.Name {
     static let sortLines = Notification.Name("sortLines")
     static let toggleInvisibles = Notification.Name("toggleInvisibles")
     static let refreshEditor = Notification.Name("refreshEditor")
+    static let trimTrailingWhitespace = Notification.Name("trimTrailingWhitespace")
 }
