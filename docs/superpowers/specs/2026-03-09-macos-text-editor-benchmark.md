@@ -395,6 +395,7 @@ Mark each item against the current codebase to identify work required.
 | 4.11d | Sort Lines | [✓] | sortLines in EditorViewModel, sorts selected lines alphabetically |
 | 4.11e | Line Ending Conversion | [✓] | convertLineEndings in EditorViewModel, converts to LF/CRLF/CR, menu + status bar |
 | 4.11f | Auto-Pair Brackets | [✓] | handleAutoPair in EditorView, auto-closes brackets/quotes, toggle in menu |
+| 4.11g | Font Zoom | [✓] | zoomIn/zoomOut/zoomReset in ThemeManager, Cmd+/-, Cmd+0 shortcuts |
 
 ### Syntax Highlighting
 

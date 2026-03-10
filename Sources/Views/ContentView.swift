@@ -375,6 +375,22 @@ struct ContentView: View {
             ThemeManager.shared.setAutoPairBrackets(!currentValue)
         }
 
+        // Zoom observers
+        let observerZoomIn = NotificationCenter.default.addObserver(forName: .zoomIn, object: nil, queue: .main) { _ in
+            ThemeManager.shared.zoomIn()
+            NotificationCenter.default.post(name: .refreshEditor, object: nil)
+        }
+
+        let observerZoomOut = NotificationCenter.default.addObserver(forName: .zoomOut, object: nil, queue: .main) { _ in
+            ThemeManager.shared.zoomOut()
+            NotificationCenter.default.post(name: .refreshEditor, object: nil)
+        }
+
+        let observerZoomReset = NotificationCenter.default.addObserver(forName: .zoomReset, object: nil, queue: .main) { _ in
+            ThemeManager.shared.setFontSize(14.0)
+            NotificationCenter.default.post(name: .refreshEditor, object: nil)
+        }
+
         // Trim Trailing Whitespace observer
         let observerTrimTrailingWhitespace = NotificationCenter.default.addObserver(forName: .trimTrailingWhitespace, object: nil, queue: .main) { _ in
             self.viewModel.trimTrailingWhitespaceCommand()
@@ -433,7 +449,7 @@ struct ContentView: View {
             self.splitMode = .none
         }
 
-        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerToggleInvisibles, observerToggleAutoPair, observerTrimTrailingWhitespace, observerFindSelection, observerConvertToSpaces, observerConvertToTabs, observerConvertToLF, observerConvertToCRLF, observerConvertToCR, observerSplitH, observerSplitV, observerSplitClose]
+        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerToggleInvisibles, observerToggleAutoPair, observerZoomIn, observerZoomOut, observerZoomReset, observerTrimTrailingWhitespace, observerFindSelection, observerConvertToSpaces, observerConvertToTabs, observerConvertToLF, observerConvertToCRLF, observerConvertToCR, observerSplitH, observerSplitV, observerSplitClose]
     }
 
     private func removeNotificationObservers() {

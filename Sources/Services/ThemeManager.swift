@@ -150,7 +150,18 @@ class ThemeManager: ObservableObject {
     }
 
     func setFontSize(_ size: Double) {
-        UserDefaults.standard.set(size, forKey: "fontSize")
+        let clampedSize = min(max(size, 8.0), 72.0) // Clamp between 8 and 72
+        UserDefaults.standard.set(clampedSize, forKey: "fontSize")
+    }
+
+    func zoomIn() {
+        let current = fontSize()
+        setFontSize(current + 1)
+    }
+
+    func zoomOut() {
+        let current = fontSize()
+        setFontSize(current - 1)
     }
 
     func fontName() -> String {

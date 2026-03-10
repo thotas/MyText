@@ -236,6 +236,23 @@ struct MyTextApp: App {
                     NotificationCenter.default.post(name: .splitClose, object: nil)
                 }
                 .keyboardShortcut("w", modifiers: [.command, .option])
+
+                Divider()
+
+                Button("Zoom In") {
+                    NotificationCenter.default.post(name: .zoomIn, object: nil)
+                }
+                .keyboardShortcut("+", modifiers: .command)
+
+                Button("Zoom Out") {
+                    NotificationCenter.default.post(name: .zoomOut, object: nil)
+                }
+                .keyboardShortcut("-", modifiers: .command)
+
+                Button("Reset Zoom") {
+                    NotificationCenter.default.post(name: .zoomReset, object: nil)
+                }
+                .keyboardShortcut("0", modifiers: .command)
             }
 
             CommandGroup(replacing: .newItem) {
@@ -318,6 +335,9 @@ extension Notification.Name {
     static let sortLines = Notification.Name("sortLines")
     static let toggleInvisibles = Notification.Name("toggleInvisibles")
     static let toggleAutoPairBrackets = Notification.Name("toggleAutoPairBrackets")
+    static let zoomIn = Notification.Name("zoomIn")
+    static let zoomOut = Notification.Name("zoomOut")
+    static let zoomReset = Notification.Name("zoomReset")
     static let refreshEditor = Notification.Name("refreshEditor")
     static let trimTrailingWhitespace = Notification.Name("trimTrailingWhitespace")
     static let findSelection = Notification.Name("findSelection")
