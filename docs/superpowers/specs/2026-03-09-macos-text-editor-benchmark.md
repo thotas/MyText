@@ -384,7 +384,7 @@ Mark each item against the current codebase to identify work required.
 | 4.18 | Find | [✓] | FindBarView |
 | 4.19 | Regex Find | [✓] | NSRegularExpression |
 | 4.20 | Case Sensitive | [✓] | Option in FindBar |
-| 4.21 | Replace | [~] | UI present, logic partial |
+| 4.21 | Replace | [✓] | replaceNext in EditorViewModel |
 | 4.22 | Replace All | [✓] | replaceAll in EditorViewModel |
 | 4.23 | Find Next/Previous | [✓] | findNext/findPrevious in EditorViewModel |
 | 4.24 | Highlight Matches | [✓] | highlightMatches in EditorViewModel |
