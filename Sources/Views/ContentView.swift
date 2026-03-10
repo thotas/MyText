@@ -97,19 +97,23 @@ struct ContentView: View {
 
         if selectedTab?.id == tab.id {
             if tabs.isEmpty {
-                selectedTab = nil
-                // Create a new tab when closing the last one
-                createNewTab()
+                // Create a new tab FIRST, then assign to selectedTab
+                let newDoc = TextDocument(content: "")
+                let newTab = TabItem(title: newDoc.fileName, document: newDoc, isModified: false)
+                tabs.append(newTab)
+                selectedTab = newTab
+                viewModel.document = newDoc
             } else if index >= tabs.count {
                 selectedTab = tabs.last
+                if let selected = selectedTab {
+                    viewModel.document = selected.document
+                }
             } else {
                 selectedTab = tabs[index]
+                if let selected = selectedTab {
+                    viewModel.document = selected.document
+                }
             }
-        }
-
-        // Update viewModel with selected tab's document
-        if let selected = selectedTab {
-            viewModel.document = selected.document
         }
     }
 
