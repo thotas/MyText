@@ -332,8 +332,10 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+Shift+Up | Move Line Up | ✅ |
 | Cmd+Shift+Down | Move Line Down | ✅ |
 | Cmd+/ | Toggle Comment | ✅ |
-| Cmd+Tab | Next Tab | ❌ |
-| Cmd+Shift+Tab | Previous Tab | ❌ |
+| Cmd+Tab | Next Tab | ✅ |
+| Cmd+Shift+Tab | Previous Tab | ✅ |
+| Cmd+Shift+] | Next Tab (alt) | ✅ |
+| Cmd+Shift+[ | Previous Tab (alt) | ✅ |
 
 ---
 

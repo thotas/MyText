@@ -79,11 +79,13 @@ struct MyTextApp: App {
                     NotificationCenter.default.post(name: .nextTab, object: nil)
                 }
                 .keyboardShortcut(.tab, modifiers: .command)
+                .keyboardShortcut("]", modifiers: [.command, .shift])
 
                 Button("Show Previous Tab") {
                     NotificationCenter.default.post(name: .previousTab, object: nil)
                 }
                 .keyboardShortcut(.tab, modifiers: [.command, .shift])
+                .keyboardShortcut("[", modifiers: [.command, .shift])
             }
 
             CommandGroup(after: .textEditing) {
