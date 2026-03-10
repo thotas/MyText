@@ -4,6 +4,20 @@ struct StatusBarView: View {
     @ObservedObject var viewModel: EditorViewModel
     var themeManager: ThemeManager
 
+    private var wordCount: Int {
+        let content = viewModel.document.content
+        let words = content.components(separatedBy: CharacterSet.whitespacesAndNewlines).filter { !$0.isEmpty }
+        return words.count
+    }
+
+    private var characterCount: Int {
+        viewModel.document.content.count
+    }
+
+    private var lineCount: Int {
+        viewModel.document.content.components(separatedBy: "\n").count
+    }
+
     var body: some View {
         HStack(spacing: 16) {
             // Cursor position
@@ -11,6 +25,30 @@ struct StatusBarView: View {
                 Image(systemName: "character.cursor.ibeam")
                     .font(.system(size: 10))
                 Text("Ln \(viewModel.editorState.lineNumber), Col \(viewModel.editorState.columnNumber)")
+            }
+            .foregroundStyle(Color(themeManager.currentTheme.comment))
+
+            Rectangle()
+                .fill(Color(themeManager.currentTheme.lineNumber).opacity(0.3))
+                .frame(width: 1, height: 12)
+
+            // Word count
+            HStack(spacing: 4) {
+                Image(systemName: "text.word.spacing")
+                    .font(.system(size: 10))
+                Text("\(wordCount) words")
+            }
+            .foregroundStyle(Color(themeManager.currentTheme.comment))
+
+            Rectangle()
+                .fill(Color(themeManager.currentTheme.lineNumber).opacity(0.3))
+                .frame(width: 1, height: 12)
+
+            // Character count
+            HStack(spacing: 4) {
+                Image(systemName: "textformat.size")
+                    .font(.system(size: 10))
+                Text("\(characterCount) chars")
             }
             .foregroundStyle(Color(themeManager.currentTheme.comment))
 

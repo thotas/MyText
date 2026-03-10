@@ -370,6 +370,7 @@ Mark each item against the current codebase to identify work required.
 | 4.10 | Auto-indent | [✓] | shouldInsertText in EditorView |
 | 4.11 | Tab/Shift+Tab | [✓] | Implemented |
 | 4.11a | Bracket Matching | [✓] | highlightMatchingBracket in EditorView Coordinator |
+| 4.11b | Word/Character Count | [✓] | wordCount, characterCount | in StatusBarView
 
 ### Syntax Highlighting
 
