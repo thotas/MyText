@@ -25,6 +25,10 @@ struct SettingsView: View {
                     Picker("Color Theme", selection: Binding(
                         get: { themeManager.currentTheme.name },
                         set: { name in
+                            // Disable sync when manually selecting a theme
+                            if themeManager.syncWithSystem {
+                                themeManager.syncWithSystem = false
+                            }
                             if let theme = themeManager.themes.first(where: { $0.name == name }) {
                                 themeManager.setTheme(theme)
                             }
@@ -65,6 +69,8 @@ struct SettingsView: View {
                         }
                     }
                     .pickerStyle(.menu)
+                    .disabled(themeManager.syncWithSystem)
+                    .opacity(themeManager.syncWithSystem ? 0.5 : 1.0)
 
                     HStack {
                         Button("Save Current Theme...") {

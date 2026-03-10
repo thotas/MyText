@@ -10,6 +10,12 @@ class ThemeManager: ObservableObject {
             UserDefaults.standard.set(syncWithSystem, forKey: "syncWithSystem")
             if syncWithSystem {
                 updateForSystemAppearance()
+            } else {
+                // When sync is turned off, restore the last selected theme
+                let savedThemeName = UserDefaults.standard.string(forKey: "selectedTheme") ?? "Dark"
+                if let theme = themes.first(where: { $0.name == savedThemeName }) {
+                    currentTheme = theme
+                }
             }
         }
     }
