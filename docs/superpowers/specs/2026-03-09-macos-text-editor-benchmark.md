@@ -238,8 +238,8 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Undo/Redo | Full undo stack via NSTextView | ✅ Implemented | P0 |
 | Cut/Copy/Paste | Standard editing operations | ✅ Implemented | P0 |
 | Select All | Select entire document | ✅ Implemented | P0 |
-| Line Operations | Duplicate line, move line up/down | ❌ Missing | P0 |
-| Auto-indent | Maintain indentation on newline | ❌ Missing | P0 |
+| Line Operations | Duplicate line, move line up/down | ✅ Implemented | P0 |
+| Auto-indent | Maintain indentation on newline | ✅ Implemented | P0 |
 | Tab/Shift+Tab | Insert/remove indentation | ✅ Implemented | P0 |
 
 #### F3: Syntax Highlighting
@@ -284,7 +284,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Monokai | Monokai color scheme | ✅ Implemented | P0 |
 | Dracula | Dracula color scheme | ✅ Implemented | P0 |
 | Midnight | Midnight color scheme | ✅ Implemented | P0 |
-| Custom Theme | User-defined colors | ❌ Missing | P0 |
+| Custom Theme | User-defined colors | ✅ Implemented | P0 |
 | Sync with System | Follow macOS appearance | ✅ Implemented | P0 |
 
 #### F7: Tab Management
@@ -358,12 +358,12 @@ Mark each item against the current codebase to identify work required.
 | 4.2 | Open File | [✓] | NSOpenPanel integration |
 | 4.3 | Save File | [✓] | Write to URL |
 | 4.4 | Save As | [✓] | NSSavePanel integration |
-| 4.5 | Recent Files | [✗] | UserDefaults array needed |
+| 4.5 | Recent Files | [✓] | recentFiles in ThemeManager |
 | 4.6 | Multiple Windows | [~] | SwiftUI WindowGroup supports |
 | 4.7 | Undo/Redo | [✓] | NSTextView built-in |
 | 4.8 | Cut/Copy/Paste | [✓] | NSTextView built-in |
-| 4.9 | Line Operations | [✗] | Custom NSTextView delegate |
-| 4.10 | Auto-indent | [✗] | NSTextView delegate |
+| 4.9 | Line Operations | [✓] | duplicateLine/moveLineUp/moveLineDown in EditorViewModel |
+| 4.10 | Auto-indent | [✓] | shouldInsertText in EditorView |
 | 4.11 | Tab/Shift+Tab | [✓] | Implemented |
 
 ### Syntax Highlighting
@@ -408,7 +408,7 @@ Mark each item against the current codebase to identify work required.
 | 4.32 | Monokai | [✓] | EditorTheme.monokai |
 | 4.33 | Dracula | [✓] | EditorTheme.dracula |
 | 4.34 | Midnight | [✓] | EditorTheme.midnight |
-| 4.35 | Custom Theme | [✗] | JSON import/export |
+| 4.35 | Custom Theme | [✓] | importTheme/exportTheme in ThemeManager |
 | 4.36 | System Sync | [✓] | updateForSystemAppearance in ThemeManager |
 
 ### Tab Management
