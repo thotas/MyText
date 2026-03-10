@@ -5,8 +5,20 @@ class ThemeManager: ObservableObject {
     static let shared = ThemeManager()
 
     @Published var currentTheme: EditorTheme
+    @Published var syncWithSystem: Bool {
+        didSet {
+            UserDefaults.standard.set(syncWithSystem, forKey: "syncWithSystem")
+            if syncWithSystem {
+                updateForSystemAppearance()
+            }
+        }
+    }
 
-    let themes: [EditorTheme] = [
+    @Published var customThemes: [EditorTheme] = []
+
+    private var cancellables = Set<AnyCancellable>()
+
+    let builtInThemes: [EditorTheme] = [
         EditorTheme.dark,
         EditorTheme.light,
         EditorTheme.midnight,
@@ -14,9 +26,112 @@ class ThemeManager: ObservableObject {
         EditorTheme.dracula
     ]
 
+    var themes: [EditorTheme] {
+        builtInThemes + customThemes
+    }
+
+    private let customThemesKey = "customThemes"
+
     private init() {
         let savedThemeName = UserDefaults.standard.string(forKey: "selectedTheme") ?? "Dark"
-        currentTheme = themes.first(where: { $0.name == savedThemeName }) ?? .dark
+        let savedSyncWithSystem = UserDefaults.standard.bool(forKey: "syncWithSystem")
+
+        syncWithSystem = savedSyncWithSystem
+        customThemes = ThemeManager.loadCustomThemesFromDefaults()
+        currentTheme = EditorTheme.dark
+
+        // Set initial theme based on system if sync is enabled
+        if syncWithSystem {
+            updateForSystemAppearance()
+        } else {
+            currentTheme = (builtInThemes + customThemes).first(where: { $0.name == savedThemeName }) ?? .dark
+        }
+
+        // Observe system appearance changes
+        setupAppearanceObserver()
+    }
+
+    private func setupAppearanceObserver() {
+        NotificationCenter.default.publisher(for: NSApplication.didChangeOcclusionStateNotification)
+            .sink { [weak self] _ in
+                self?.handleAppearanceChange()
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)
+            .sink { [weak self] _ in
+                self?.handleAppearanceChange()
+            }
+            .store(in: &cancellables)
+    }
+
+    private func handleAppearanceChange() {
+        guard syncWithSystem else { return }
+        updateForSystemAppearance()
+    }
+
+    func updateForSystemAppearance() {
+        guard syncWithSystem else { return }
+        let isDark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        currentTheme = isDark ? EditorTheme.dark : EditorTheme.light
+        UserDefaults.standard.set(currentTheme.name, forKey: "selectedTheme")
+    }
+
+    // MARK: - Custom Theme Management
+
+    func saveCustomTheme(_ theme: EditorTheme, name: String) {
+        var themed = theme
+        themed.name = name
+        customThemes.append(themed)
+        saveCustomThemesToDefaults()
+    }
+
+    func deleteCustomTheme(_ theme: EditorTheme) {
+        customThemes.removeAll { $0.id == theme.id }
+        saveCustomThemesToDefaults()
+    }
+
+    func importTheme(from url: URL) throws {
+        let data = try Data(contentsOf: url)
+        let decoder = JSONDecoder()
+        let themeData = try decoder.decode(ThemeData.self, from: data)
+        let theme = themeData.toEditorTheme()
+
+        // Check for name conflicts
+        var finalName = theme.name
+        var counter = 1
+        while themes.contains(where: { $0.name == finalName }) {
+            finalName = "\(theme.name) \(counter)"
+            counter += 1
+        }
+
+        var themed = theme
+        themed.name = finalName
+        customThemes.append(themed)
+        saveCustomThemesToDefaults()
+    }
+
+    func exportTheme(_ theme: EditorTheme, to url: URL) throws {
+        let themeData = ThemeData(from: theme)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        let data = try encoder.encode(themeData)
+        try data.write(to: url)
+    }
+
+    private func saveCustomThemesToDefaults() {
+        let themeDataList = customThemes.map { ThemeData(from: $0) }
+        if let data = try? JSONEncoder().encode(themeDataList) {
+            UserDefaults.standard.set(data, forKey: customThemesKey)
+        }
+    }
+
+    private static func loadCustomThemesFromDefaults() -> [EditorTheme] {
+        guard let data = UserDefaults.standard.data(forKey: "customThemes"),
+              let themeDataList = try? JSONDecoder().decode([ThemeData].self, from: data) else {
+            return []
+        }
+        return themeDataList.map { $0.toEditorTheme() }
     }
 
     func setTheme(_ theme: EditorTheme) {
@@ -90,8 +205,8 @@ class ThemeManager: ObservableObject {
 }
 
 struct EditorTheme: Identifiable, Equatable {
-    let id = UUID()
-    let name: String
+    var id = UUID()
+    var name: String
     let background: Color
     let editorBackground: Color
     let text: Color
@@ -230,6 +345,78 @@ struct EditorTheme: Identifiable, Equatable {
     )
 }
 
+// Codable struct for JSON theme export/import
+struct ThemeData: Codable {
+    let name: String
+    let background: String
+    let editorBackground: String
+    let text: String
+    let selection: String
+    let cursor: String
+    let lineNumber: String
+    let lineNumberHighlight: String
+    let gutterBackground: String
+    let toolbar: String
+    let currentLineBackground: String
+    let keyword: String
+    let string: String
+    let number: String
+    let comment: String
+    let function: String
+    let type: String
+    let variable: String
+    let `operator`: String
+    let preprocessor: String
+
+    init(from theme: EditorTheme) {
+        self.name = theme.name
+        self.background = theme.background.hexString
+        self.editorBackground = theme.editorBackground.hexString
+        self.text = theme.text.hexString
+        self.selection = theme.selection.hexString
+        self.cursor = theme.cursor.hexString
+        self.lineNumber = theme.lineNumber.hexString
+        self.lineNumberHighlight = theme.lineNumberHighlight.hexString
+        self.gutterBackground = theme.gutterBackground.hexString
+        self.toolbar = theme.toolbar.hexString
+        self.currentLineBackground = theme.currentLineBackground
+        self.keyword = theme.keyword.hexString
+        self.string = theme.string.hexString
+        self.number = theme.number.hexString
+        self.comment = theme.comment.hexString
+        self.function = theme.function.hexString
+        self.type = theme.type.hexString
+        self.variable = theme.variable.hexString
+        self.operator = theme.operator.hexString
+        self.preprocessor = theme.preprocessor.hexString
+    }
+
+    func toEditorTheme() -> EditorTheme {
+        EditorTheme(
+            name: name,
+            background: Color(hex: background),
+            editorBackground: Color(hex: editorBackground),
+            text: Color(hex: text),
+            selection: Color(hex: selection).opacity(0.6),
+            cursor: Color(hex: cursor),
+            lineNumber: Color(hex: lineNumber),
+            lineNumberHighlight: Color(hex: lineNumberHighlight),
+            gutterBackground: Color(hex: gutterBackground),
+            toolbar: Color(hex: toolbar),
+            currentLineBackground: currentLineBackground,
+            keyword: Color(hex: keyword),
+            string: Color(hex: string),
+            number: Color(hex: number),
+            comment: Color(hex: comment),
+            function: Color(hex: function),
+            type: Color(hex: type),
+            variable: Color(hex: variable),
+            operator: Color(hex: `operator`),
+            preprocessor: Color(hex: preprocessor)
+        )
+    }
+}
+
 extension Double {
     var nonZero: Double? {
         self > 0 ? self : nil
@@ -265,5 +452,15 @@ extension Color {
             blue: Double(b) / 255,
             opacity: Double(a) / 255
         )
+    }
+
+    var hexString: String {
+        guard let components = NSColor(self).cgColor.components, components.count >= 3 else {
+            return "000000"
+        }
+        let r = Int(components[0] * 255)
+        let g = Int(components[1] * 255)
+        let b = Int(components[2] * 255)
+        return String(format: "%02X%02X%02X", r, g, b)
     }
 }

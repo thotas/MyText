@@ -1,9 +1,14 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @State private var fontSize: Double = ThemeManager.shared.fontSize()
     @State private var tabWidth: Int = ThemeManager.shared.tabWidth()
     @State private var showLineNumbers: Bool = ThemeManager.shared.showLineNumbers()
+    @State private var showSaveThemeSheet: Bool = false
+    @State private var newThemeName: String = ""
+    @State private var showImportError: Bool = false
+    @State private var importErrorMessage: String = ""
     @StateObject private var themeManager = ThemeManager.shared
 
     var body: some View {
@@ -11,6 +16,11 @@ struct SettingsView: View {
             // Appearance tab
             Form {
                 Section("Theme") {
+                    Toggle("Sync with System Appearance", isOn: $themeManager.syncWithSystem)
+                        .onChange(of: themeManager.syncWithSystem) { _, _ in
+                            // ThemeManager handles the change
+                        }
+
                     Picker("Color Theme", selection: Binding(
                         get: { themeManager.currentTheme.name },
                         set: { name in
@@ -19,21 +29,69 @@ struct SettingsView: View {
                             }
                         }
                     )) {
-                        ForEach(themeManager.themes) { theme in
-                            HStack {
-                                Circle()
-                                    .fill(Color(theme.background))
-                                    .frame(width: 12, height: 12)
-                                    .overlay(
-                                        Circle()
-                                            .stroke(Color(theme.keyword), lineWidth: 2)
-                                    )
-                                Text(theme.name)
+                        Section("Built-in") {
+                            ForEach(themeManager.builtInThemes) { theme in
+                                HStack {
+                                    Circle()
+                                        .fill(Color(theme.background))
+                                        .frame(width: 12, height: 12)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color(theme.keyword), lineWidth: 2)
+                                        )
+                                    Text(theme.name)
+                                }
+                                .tag(theme.name)
                             }
-                            .tag(theme.name)
+                        }
+
+                        if !themeManager.customThemes.isEmpty {
+                            Section("Custom") {
+                                ForEach(themeManager.customThemes) { theme in
+                                    HStack {
+                                        Circle()
+                                            .fill(Color(theme.background))
+                                            .frame(width: 12, height: 12)
+                                            .overlay(
+                                                Circle()
+                                                    .stroke(Color(theme.keyword), lineWidth: 2)
+                                            )
+                                        Text(theme.name)
+                                    }
+                                    .tag(theme.name)
+                                }
+                            }
                         }
                     }
                     .pickerStyle(.menu)
+
+                    HStack {
+                        Button("Save Current Theme...") {
+                            newThemeName = themeManager.currentTheme.name
+                            showSaveThemeSheet = true
+                        }
+                        .disabled(themeManager.customThemes.contains(where: { $0.name == themeManager.currentTheme.name }))
+
+                        Spacer()
+
+                        Button("Import Theme...") {
+                            importTheme()
+                        }
+
+                        if !themeManager.customThemes.isEmpty {
+                            Button("Delete Custom...") {
+                                if let customTheme = themeManager.customThemes.first(where: { $0.name == themeManager.currentTheme.name }) {
+                                    themeManager.deleteCustomTheme(customTheme)
+                                    if themeManager.customThemes.isEmpty {
+                                        themeManager.setTheme(EditorTheme.dark)
+                                    } else {
+                                        themeManager.setTheme(themeManager.customThemes[0])
+                                    }
+                                }
+                            }
+                            .foregroundStyle(.red)
+                        }
+                    }
                 }
 
                 Section("Font") {
@@ -84,7 +142,60 @@ struct SettingsView: View {
                 Label("Editor", systemImage: "doc.text")
             }
         }
-        .frame(width: 450, height: 300)
+        .frame(width: 450, height: 350)
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showSaveThemeSheet) {
+            VStack(spacing: 20) {
+                Text("Save Custom Theme")
+                    .font(.headline)
+
+                TextField("Theme Name", text: $newThemeName)
+                    .textFieldStyle(.roundedBorder)
+                    .frame(width: 250)
+
+                HStack(spacing: 20) {
+                    Button("Cancel") {
+                        showSaveThemeSheet = false
+                    }
+                    .keyboardShortcut(.cancelAction)
+
+                    Button("Save") {
+                        if !newThemeName.isEmpty {
+                            themeManager.saveCustomTheme(themeManager.currentTheme, name: newThemeName)
+                            showSaveThemeSheet = false
+                        }
+                    }
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(newThemeName.isEmpty)
+                }
+            }
+            .padding(30)
+            .frame(width: 320, height: 150)
+        }
+        .alert("Import Error", isPresented: $showImportError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(importErrorMessage)
+        }
+    }
+
+    private func importTheme() {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [UTType.json]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+
+        if panel.runModal() == .OK, let url = panel.url {
+            do {
+                try themeManager.importTheme(from: url)
+                // Switch to the newly imported theme
+                if let customTheme = themeManager.customThemes.last {
+                    themeManager.setTheme(customTheme)
+                }
+            } catch {
+                importErrorMessage = error.localizedDescription
+                showImportError = true
+            }
+        }
     }
 }
