@@ -325,7 +325,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+, | Settings | ✅ |
 | Cmd+P | Quick Open | ✅ |
 | Cmd+\\ | Toggle Sidebar | ✅ |
-| Cmd+L | Go to Line | ❌ |
+| Cmd+L | Go to Line | ✅ |
 | Cmd+Shift+L | Select Line | ❌ |
 | Cmd+D | Duplicate Line | ❌ |
 | Cmd+Shift+D | Move Line Down | ❌ |

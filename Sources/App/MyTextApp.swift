@@ -117,6 +117,13 @@ struct MyTextApp: App {
 
                 Divider()
 
+                Button("Go to Line...") {
+                    NotificationCenter.default.post(name: .goToLine, object: nil)
+                }
+                .keyboardShortcut("l", modifiers: .command)
+
+                Divider()
+
                 Button("Toggle Fold") {
                     NotificationCenter.default.post(name: .toggleFold, object: nil)
                 }
@@ -170,4 +177,5 @@ extension Notification.Name {
     static let toggleFold = Notification.Name("toggleFold")
     static let foldAll = Notification.Name("foldAll")
     static let unfoldAll = Notification.Name("unfoldAll")
+    static let goToLine = Notification.Name("goToLine")
 }

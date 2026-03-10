@@ -15,6 +15,7 @@
 		6B0D44F5E8E0376AE2A382C1 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70AFC9A61C783FAEA95D78C /* ThemeManager.swift */; };
 		728A0F01ABF9711BCC353D16 /* SyntaxHighlighter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57572141DA3934E0057AECC0 /* SyntaxHighlighter.swift */; };
 		77DA51EC036AB26CEE72655A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FFA8ECCFB59ED44B72B22B4C /* Assets.xcassets */; };
+		7CC44D415DE12ECA78E079FB /* GoToLineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED45928EA0DBB508D645B849 /* GoToLineView.swift */; };
 		83C284487680437BF0F6E46A /* QuickOpenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 943D791EC8D11AEC8754A000 /* QuickOpenView.swift */; };
 		8AB5F122AC751F294A98A681 /* EditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB097055F1C2984E67529F11 /* EditorViewModel.swift */; };
 		8F7FB8F83FF0D20F8D8242B6 /* TextDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 131B2394A41D97BFF2F5EDCE /* TextDocument.swift */; };
@@ -41,6 +42,7 @@
 		A70AFC9A61C783FAEA95D78C /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		BA5D32404B2CAF0EFD01AAF1 /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
 		C2AF0F22E311A661ED1EF89E /* MyTextApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyTextApp.swift; sourceTree = "<group>"; };
+		ED45928EA0DBB508D645B849 /* GoToLineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoToLineView.swift; sourceTree = "<group>"; };
 		FB097055F1C2984E67529F11 /* EditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorViewModel.swift; sourceTree = "<group>"; };
 		FFA8ECCFB59ED44B72B22B4C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -112,6 +114,7 @@
 				47C3A2A1FB3337C68A24266B /* ContentView.swift */,
 				BA5D32404B2CAF0EFD01AAF1 /* EditorView.swift */,
 				1CDFE5014BD4322FFB85C641 /* FindBarView.swift */,
+				ED45928EA0DBB508D645B849 /* GoToLineView.swift */,
 				943D791EC8D11AEC8754A000 /* QuickOpenView.swift */,
 				6FFDED36737A439A2D72F1E8 /* SettingsView.swift */,
 				6334606D83795886BD9E4285 /* SidebarView.swift */,
@@ -240,6 +243,7 @@
 				32D7B683B98CEEC9BA83955B /* EditorView.swift in Sources */,
 				8AB5F122AC751F294A98A681 /* EditorViewModel.swift in Sources */,
 				5EE996039BA1F17E3E2D0CB7 /* FindBarView.swift in Sources */,
+				7CC44D415DE12ECA78E079FB /* GoToLineView.swift in Sources */,
 				42AB3C24917D70042E9D127B /* MyTextApp.swift in Sources */,
 				83C284487680437BF0F6E46A /* QuickOpenView.swift in Sources */,
 				EE29091B09490BF6E15CACA1 /* SettingsView.swift in Sources */,

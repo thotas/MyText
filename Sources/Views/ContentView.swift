@@ -5,6 +5,7 @@ struct ContentView: View {
     @StateObject private var viewModel = EditorViewModel()
     @State private var showFindBar = false
     @State private var showQuickOpen = false
+    @State private var showGoToLine = false
     @State private var showSidebar = true
     @State private var tabs: [TabItem] = []
     @State private var selectedTab: TabItem?
@@ -64,10 +65,17 @@ struct ContentView: View {
         .sheet(isPresented: $showQuickOpen) {
             QuickOpenView(isPresented: $showQuickOpen, themeManager: themeManager)
         }
+        .sheet(isPresented: $showGoToLine) {
+            GoToLineView(isPresented: $showGoToLine, viewModel: viewModel, themeManager: themeManager)
+        }
         .onAppear {
             NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
                 if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "p" {
                     showQuickOpen = true
+                    return nil
+                }
+                if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "l" {
+                    showGoToLine = true
                     return nil
                 }
                 return event
@@ -224,7 +232,11 @@ struct ContentView: View {
             self.selectPreviousTab()
         }
 
-        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9]
+        let observer10 = NotificationCenter.default.addObserver(forName: .goToLine, object: nil, queue: .main) { _ in
+            self.showGoToLine = true
+        }
+
+        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10]
     }
 
     private func removeNotificationObservers() {
