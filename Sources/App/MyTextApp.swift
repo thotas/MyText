@@ -20,6 +20,13 @@ struct MyTextApp: App {
                 }
                 .keyboardShortcut("n", modifiers: .command)
 
+                Button("New Tab") {
+                    NotificationCenter.default.post(name: .newTab, object: nil)
+                }
+                .keyboardShortcut("t", modifiers: .command)
+
+                Divider()
+
                 Button("Open...") {
                     NotificationCenter.default.post(name: .openDocument, object: nil)
                 }
@@ -47,6 +54,26 @@ struct MyTextApp: App {
                     NotificationCenter.default.post(name: .saveDocumentAs, object: nil)
                 }
                 .keyboardShortcut("s", modifiers: [.command, .shift])
+
+                Divider()
+
+                Button("Close Tab") {
+                    NotificationCenter.default.post(name: .closeTab, object: nil)
+                }
+                .keyboardShortcut("w", modifiers: .command)
+            }
+
+            CommandGroup(after: .toolbar) {
+                Divider()
+                Button("Show Next Tab") {
+                    NotificationCenter.default.post(name: .nextTab, object: nil)
+                }
+                .keyboardShortcut(.tab, modifiers: .command)
+
+                Button("Show Previous Tab") {
+                    NotificationCenter.default.post(name: .previousTab, object: nil)
+                }
+                .keyboardShortcut(.tab, modifiers: [.command, .shift])
             }
 
             CommandGroup(after: .textEditing) {
@@ -106,4 +133,8 @@ extension Notification.Name {
     static let moveLineUp = Notification.Name("moveLineUp")
     static let moveLineDown = Notification.Name("moveLineDown")
     static let toggleComment = Notification.Name("toggleComment")
+    static let newTab = Notification.Name("newTab")
+    static let closeTab = Notification.Name("closeTab")
+    static let nextTab = Notification.Name("nextTab")
+    static let previousTab = Notification.Name("previousTab")
 }
