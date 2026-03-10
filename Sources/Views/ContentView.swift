@@ -113,6 +113,17 @@ struct ContentView: View {
             self.viewModel.editorState = EditorState()
         }
 
+        // Handle files opened from Finder (double-click)
+        let observerOpenFile = NotificationCenter.default.addObserver(forName: .openFileFromURL, object: nil, queue: .main) { notification in
+            if let url = notification.object as? URL {
+                self.viewModel.loadDocument(from: url)
+                let tabItem = TabItem(title: self.viewModel.document.fileName, document: self.viewModel.document, isModified: false)
+                self.tabs.append(tabItem)
+                self.selectedTab = tabItem
+                self.viewModel.document = tabItem.document
+            }
+        }
+
         let observer2 = NotificationCenter.default.addObserver(forName: .openDocument, object: nil, queue: .main) { _ in
             self.viewModel.openDocument()
             // If file was loaded, create a new tab for it
@@ -180,7 +191,7 @@ struct ContentView: View {
             self.selectPreviousTab()
         }
 
-        notificationObservers = [observer1, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9]
+        notificationObservers = [observer1, observerOpenFile, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9]
     }
 
     private func removeNotificationObservers() {

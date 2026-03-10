@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 @main
 struct MyTextApp: App {
@@ -12,6 +13,10 @@ struct MyTextApp: App {
         WindowGroup {
             ContentView()
                 .preferredColorScheme(.dark)
+                .onOpenURL { url in
+                    // Handle files opened from Finder
+                    NotificationCenter.default.post(name: .openFileFromURL, object: url)
+                }
         }
         .commands {
             CommandGroup(replacing: .newItem) {
@@ -143,6 +148,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 extension Notification.Name {
     static let newDocument = Notification.Name("newDocument")
     static let openDocument = Notification.Name("openDocument")
+    static let openFileFromURL = Notification.Name("openFileFromURL")
     static let saveDocument = Notification.Name("saveDocument")
     static let saveDocumentAs = Notification.Name("saveDocumentAs")
     static let openRecentFile = Notification.Name("openRecentFile")
