@@ -273,7 +273,6 @@ class EditorViewModel: ObservableObject {
             // Remove comment
             let commentStart = line.firstIndex(of: "/")!
             newLines[lineIndex] = String(line[..<commentStart]) + String(line[line.index(after: commentStart)...])
-            newLines[lineIndex] = String(newLines[lineIndex].dropFirst())
         } else {
             // Add comment at start (after any leading whitespace)
             let leadingWhitespace = String(line.prefix(while: { $0.isWhitespace }))
