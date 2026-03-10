@@ -181,6 +181,14 @@ class ThemeManager: ObservableObject {
         UserDefaults.standard.set(show, forKey: "showLineNumbers")
     }
 
+    func showInvisibles() -> Bool {
+        UserDefaults.standard.bool(forKey: "showInvisibles")
+    }
+
+    func setShowInvisibles(_ show: Bool) {
+        UserDefaults.standard.set(show, forKey: "showInvisibles")
+    }
+
     private let recentFilesKey = "recentFiles"
     private let maxRecentFiles = 10
 

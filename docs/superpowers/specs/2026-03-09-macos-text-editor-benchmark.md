@@ -277,6 +277,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Sidebar Toggle | Show/hide sidebar | ✅ Implemented | P0 |
 | Theme Selection | Switch between themes | ✅ Implemented | P0 |
 | Split View | Split editor horizontally or vertically | ✅ Implemented | P1 |
+| Show Invisibles | Display spaces, tabs as visible characters | ✅ Implemented | P1 |
 
 #### F6: Themes
 
@@ -342,6 +343,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+Shift+U | Uppercase Selection | ✅ |
 | Cmd+Opt+U+Shift | Lowercase Selection | ✅ |
 | Cmd+Opt+S | Sort Lines | ✅ |
+| Cmd+Shift+I | Show Invisibles | ✅ |
 
 ---
 
@@ -410,6 +412,7 @@ Mark each item against the current codebase to identify work required.
 | 4.28 | Sidebar Toggle | [✓] | Cmd+\\ works |
 | 4.29 | Theme Selection | [✓] | ThemeManager + Settings |
 | 4.30 | Split View | [✓] | SplitMode enum in ContentView |
+| 4.30a | Show Invisibles | [✓] | layoutManager.showsInvisibleCharacters in EditorView, settings toggle |
 
 ### Themes
 

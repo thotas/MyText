@@ -114,6 +114,9 @@ struct SimpleTextEditor: NSViewRepresentable {
         let fontSize = ThemeManager.shared.fontSize()
         textView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
 
+        // Configure invisible characters (show Invisibles) via layoutManager
+        textView.layoutManager?.showsInvisibleCharacters = ThemeManager.shared.showInvisibles()
+
         // Configure layout
         textView.textContainerInset = NSSize(width: 8, height: 8)
         textView.isVerticallyResizable = true
@@ -149,6 +152,9 @@ struct SimpleTextEditor: NSViewRepresentable {
         // Update font
         let fontSize = ThemeManager.shared.fontSize()
         textView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
+
+        // Update invisible characters setting
+        textView.layoutManager?.showsInvisibleCharacters = ThemeManager.shared.showInvisibles()
 
         // Update word wrap setting
         if viewModel.wordWrap {
@@ -283,6 +289,18 @@ struct SimpleTextEditor: NSViewRepresentable {
                 Task { @MainActor in
                     self.parent.viewModel.unfoldAll()
                 }
+            }
+
+            // Refresh editor (for settings changes like showInvisibles)
+            NotificationCenter.default.addObserver(
+                forName: .refreshEditor,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self = self,
+                      let textView = self.parent.viewModel.textView else { return }
+                // Re-apply the showsInvisibleCharacters setting
+                textView.layoutManager?.showsInvisibleCharacters = ThemeManager.shared.showInvisibles()
             }
         }
 

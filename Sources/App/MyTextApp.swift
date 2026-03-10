@@ -165,6 +165,13 @@ struct MyTextApp: App {
 
                 Divider()
 
+                Button("Show Invisibles") {
+                    NotificationCenter.default.post(name: .toggleInvisibles, object: nil)
+                }
+                .keyboardShortcut("i", modifiers: [.command, .shift])
+
+                Divider()
+
                 Button("Split Horizontal") {
                     NotificationCenter.default.post(name: .splitHorizontal, object: nil)
                 }
@@ -228,4 +235,6 @@ extension Notification.Name {
     static let uppercaseSelection = Notification.Name("uppercaseSelection")
     static let lowercaseSelection = Notification.Name("lowercaseSelection")
     static let sortLines = Notification.Name("sortLines")
+    static let toggleInvisibles = Notification.Name("toggleInvisibles")
+    static let refreshEditor = Notification.Name("refreshEditor")
 }
