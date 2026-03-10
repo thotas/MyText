@@ -234,6 +234,19 @@ class ThemeManager: ObservableObject {
         UserDefaults.standard.set(column, forKey: "lineLengthGuideColumn")
     }
 
+    // MARK: - Auto-Pair Brackets
+
+    func autoPairBrackets() -> Bool {
+        if UserDefaults.standard.object(forKey: "autoPairBrackets") == nil {
+            return true // Default to enabled
+        }
+        return UserDefaults.standard.bool(forKey: "autoPairBrackets")
+    }
+
+    func setAutoPairBrackets(_ enabled: Bool) {
+        UserDefaults.standard.set(enabled, forKey: "autoPairBrackets")
+    }
+
     private let recentFilesKey = "recentFiles"
     private let maxRecentFiles = 10
 

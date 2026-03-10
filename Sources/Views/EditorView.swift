@@ -662,6 +662,14 @@ struct SimpleTextEditor: NSViewRepresentable {
         // MARK: - Auto-Indent
 
         func textView(_ textView: NSTextView, shouldInsertText string: String, replacingRangeCharRange charRange: NSRange) -> Bool {
+            // Handle auto-pair brackets and quotes
+            if parent.themeManager.autoPairBrackets() {
+                if let pairResult = handleAutoPair(textView: textView, input: string, charRange: charRange) {
+                    textView.insertText(pairResult, replacementRange: charRange)
+                    return false
+                }
+            }
+
             if string == "\n" {
                 let currentLine = getCurrentLine(textView: textView)
                 let indent = getIndentation(of: currentLine)
@@ -677,6 +685,31 @@ struct SimpleTextEditor: NSViewRepresentable {
                 return false
             }
             return true
+        }
+
+        // MARK: - Auto-Pair Brackets and Quotes
+
+        private func handleAutoPair(textView: NSTextView, input: String, charRange: NSRange) -> String? {
+            let pairs: [String: String] = [
+                "(": ")",
+                "[": "]",
+                "{": "}",
+                "\"": "\"",
+                "'": "'",
+                "`": "`"
+            ]
+
+            guard let closing = pairs[input] else { return nil }
+
+            // Check if there's a selection - wrap it
+            if charRange.length > 0 {
+                let text = textView.string as NSString
+                let selectedText = text.substring(with: charRange)
+                return input + selectedText + closing
+            }
+
+            // Insert both opening and closing, cursor in between
+            return input + closing
         }
 
         private func getCurrentLine(textView: NSTextView) -> String {

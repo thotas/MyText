@@ -216,6 +216,10 @@ struct MyTextApp: App {
                 }
                 .keyboardShortcut("i", modifiers: [.command, .shift])
 
+                Button("Auto-Pair Brackets") {
+                    NotificationCenter.default.post(name: .toggleAutoPairBrackets, object: nil)
+                }
+
                 Divider()
 
                 Button("Split Horizontal") {
@@ -313,6 +317,7 @@ extension Notification.Name {
     static let lowercaseSelection = Notification.Name("lowercaseSelection")
     static let sortLines = Notification.Name("sortLines")
     static let toggleInvisibles = Notification.Name("toggleInvisibles")
+    static let toggleAutoPairBrackets = Notification.Name("toggleAutoPairBrackets")
     static let refreshEditor = Notification.Name("refreshEditor")
     static let trimTrailingWhitespace = Notification.Name("trimTrailingWhitespace")
     static let findSelection = Notification.Name("findSelection")

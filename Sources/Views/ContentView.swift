@@ -369,6 +369,12 @@ struct ContentView: View {
             NotificationCenter.default.post(name: .refreshEditor, object: nil)
         }
 
+        // Toggle Auto-Pair Brackets observer
+        let observerToggleAutoPair = NotificationCenter.default.addObserver(forName: .toggleAutoPairBrackets, object: nil, queue: .main) { _ in
+            let currentValue = ThemeManager.shared.autoPairBrackets()
+            ThemeManager.shared.setAutoPairBrackets(!currentValue)
+        }
+
         // Trim Trailing Whitespace observer
         let observerTrimTrailingWhitespace = NotificationCenter.default.addObserver(forName: .trimTrailingWhitespace, object: nil, queue: .main) { _ in
             self.viewModel.trimTrailingWhitespaceCommand()
@@ -427,7 +433,7 @@ struct ContentView: View {
             self.splitMode = .none
         }
 
-        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerToggleInvisibles, observerTrimTrailingWhitespace, observerFindSelection, observerConvertToSpaces, observerConvertToTabs, observerConvertToLF, observerConvertToCRLF, observerConvertToCR, observerSplitH, observerSplitV, observerSplitClose]
+        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerToggleInvisibles, observerToggleAutoPair, observerTrimTrailingWhitespace, observerFindSelection, observerConvertToSpaces, observerConvertToTabs, observerConvertToLF, observerConvertToCRLF, observerConvertToCR, observerSplitH, observerSplitV, observerSplitClose]
     }
 
     private func removeNotificationObservers() {
