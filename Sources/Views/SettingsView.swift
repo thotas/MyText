@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var showLineNumbers: Bool = ThemeManager.shared.showLineNumbers()
     @State private var showInvisibles: Bool = ThemeManager.shared.showInvisibles()
     @State private var highlightTrailingWhitespace: Bool = ThemeManager.shared.highlightTrailingWhitespace()
+    @State private var autoSaveEnabled: Bool = ThemeManager.shared.autoSaveEnabled()
     @State private var trimTrailingWhitespace: Bool = UserDefaults.standard.bool(forKey: "trimTrailingWhitespace")
     @State private var showSaveThemeSheet: Bool = false
     @State private var newThemeName: String = ""
@@ -157,6 +158,11 @@ struct SettingsView: View {
                 }
 
                 Section("Save") {
+                    Toggle("Auto-save", isOn: $autoSaveEnabled)
+                        .onChange(of: autoSaveEnabled) { _, newValue in
+                            themeManager.setAutoSaveEnabled(newValue)
+                        }
+
                     Toggle("Trim Trailing Whitespace on Save", isOn: $trimTrailingWhitespace)
                         .onChange(of: trimTrailingWhitespace) { _, newValue in
                             UserDefaults.standard.set(newValue, forKey: "trimTrailingWhitespace")

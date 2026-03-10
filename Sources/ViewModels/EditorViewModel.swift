@@ -41,6 +41,32 @@ class EditorViewModel: ObservableObject {
         self.document = document
         self.syntaxHighlighter = SyntaxHighlighter()
         self.wordWrap = UserDefaults.standard.bool(forKey: "wordWrap")
+        startAutoSaveTimer()
+    }
+
+    private var autoSaveTimer: Timer?
+
+    private func startAutoSaveTimer() {
+        let interval = TimeInterval(ThemeManager.shared.autoSaveInterval())
+        autoSaveTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.performAutoSave()
+            }
+        }
+    }
+
+    private func performAutoSave() {
+        guard ThemeManager.shared.autoSaveEnabled() else { return }
+        guard document.isModified else { return }
+        guard document.fileURL != nil else { return } // Only auto-save if file has a path
+
+        // Save to the existing file
+        saveDocument()
+    }
+
+    func stopAutoSaveTimer() {
+        autoSaveTimer?.invalidate()
+        autoSaveTimer = nil
     }
 
     // MARK: - Code Folding

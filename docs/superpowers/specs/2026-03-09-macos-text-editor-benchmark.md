@@ -229,6 +229,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Save File | Save to existing path | ✅ Implemented | P0 |
 | Save As | Save to new path | ✅ Implemented | P0 |
 | Recent Files | Track last 10 opened files | ✅ Implemented | P0 |
+| Auto-save | Automatically save modified files | ✅ Implemented | P1 |
 | Multiple Windows | Open same document in multiple windows | ❌ Missing | P0 |
 | Trim Trailing Whitespace | Remove trailing whitespace on save + manual command | ✅ Implemented | P1 |
 
@@ -351,6 +352,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+E | Find Selection | ✅ |
 | Cmd+Shift+\ | Convert to Spaces | ✅ |
 | Cmd+Option+\ | Convert to Tabs | ✅ |
+| (Automatic) | Auto-save | ✅ |
 
 ---
 

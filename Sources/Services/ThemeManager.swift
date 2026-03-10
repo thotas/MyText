@@ -197,6 +197,26 @@ class ThemeManager: ObservableObject {
         UserDefaults.standard.set(highlight, forKey: "highlightTrailingWhitespace")
     }
 
+    func autoSaveEnabled() -> Bool {
+        if UserDefaults.standard.object(forKey: "autoSaveEnabled") == nil {
+            return true // Default to enabled
+        }
+        return UserDefaults.standard.bool(forKey: "autoSaveEnabled")
+    }
+
+    func setAutoSaveEnabled(_ enabled: Bool) {
+        UserDefaults.standard.set(enabled, forKey: "autoSaveEnabled")
+    }
+
+    func autoSaveInterval() -> Int {
+        let interval = UserDefaults.standard.integer(forKey: "autoSaveInterval")
+        return interval > 0 ? interval : 30 // Default 30 seconds
+    }
+
+    func setAutoSaveInterval(_ seconds: Int) {
+        UserDefaults.standard.set(seconds, forKey: "autoSaveInterval")
+    }
+
     private let recentFilesKey = "recentFiles"
     private let maxRecentFiles = 10
 
