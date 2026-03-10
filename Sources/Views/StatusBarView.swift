@@ -42,6 +42,24 @@ struct StatusBarView: View {
             Text(TextDocument.LineEnding.unix.displayName)
                 .foregroundStyle(Color(themeManager.currentTheme.comment))
 
+            Rectangle()
+                .fill(Color(themeManager.currentTheme.lineNumber).opacity(0.3))
+                .frame(width: 1, height: 12)
+
+            // Word wrap toggle
+            Button(action: {
+                viewModel.toggleWordWrap()
+            }) {
+                HStack(spacing: 4) {
+                    Image(systemName: viewModel.wordWrap ? "text.alignleft" : "text.alignleft")
+                        .font(.system(size: 10))
+                        .foregroundStyle(viewModel.wordWrap ? Color.blue : Color(themeManager.currentTheme.comment))
+                    Text("Wrap")
+                        .foregroundStyle(viewModel.wordWrap ? Color.blue : Color(themeManager.currentTheme.comment))
+                }
+            }
+            .buttonStyle(.plain)
+
             Spacer()
 
             // Modified indicator

@@ -10,6 +10,7 @@ class EditorViewModel: ObservableObject {
     @Published var showSidebar: Bool = true
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
+    @Published var wordWrap: Bool = false
 
     // Weak reference to text view for line operations
     weak var textView: NSTextView?
@@ -24,6 +25,12 @@ class EditorViewModel: ObservableObject {
     init(document: TextDocument = TextDocument(content: "")) {
         self.document = document
         self.syntaxHighlighter = SyntaxHighlighter()
+        self.wordWrap = UserDefaults.standard.bool(forKey: "wordWrap")
+    }
+
+    func toggleWordWrap() {
+        wordWrap.toggle()
+        UserDefaults.standard.set(wordWrap, forKey: "wordWrap")
     }
 
     func setTextView(_ textView: NSTextView?) {

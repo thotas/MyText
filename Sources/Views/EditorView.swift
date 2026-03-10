@@ -82,6 +82,21 @@ struct SimpleTextEditor: NSViewRepresentable {
         let fontSize = ThemeManager.shared.fontSize()
         textView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
 
+        // Update word wrap setting
+        if viewModel.wordWrap {
+            textView.textContainer?.widthTracksTextView = true
+            textView.textContainer?.containerSize = NSSize(
+                width: nsView.contentSize.width,
+                height: CGFloat.greatestFiniteMagnitude
+            )
+        } else {
+            textView.textContainer?.widthTracksTextView = false
+            textView.textContainer?.containerSize = NSSize(
+                width: CGFloat.greatestFiniteMagnitude,
+                height: CGFloat.greatestFiniteMagnitude
+            )
+        }
+
         // Check if content changed or language changed
         let contentChanged = textView.string != viewModel.document.content
 
