@@ -6,6 +6,9 @@ struct ContentView: View {
     @State private var showFindBar = false
     @State private var showSidebar = true
 
+    // Store notification observers to remove them later
+    @State private var notificationObservers: [NSObjectProtocol] = []
+
     var body: some View {
         HSplitView {
             // Sidebar
@@ -31,32 +34,44 @@ struct ContentView: View {
         .onAppear {
             setupNotifications()
         }
+        .onDisappear {
+            removeNotificationObservers()
+        }
         .sheet(isPresented: $showFindBar) {
             FindBarView(viewModel: viewModel, isPresented: $showFindBar, themeManager: themeManager)
         }
     }
 
     private func setupNotifications() {
-        NotificationCenter.default.addObserver(forName: .newDocument, object: nil, queue: .main) { _ in
+        let observer1 = NotificationCenter.default.addObserver(forName: .newDocument, object: nil, queue: .main) { _ in
             viewModel.newDocument()
         }
 
-        NotificationCenter.default.addObserver(forName: .openDocument, object: nil, queue: .main) { _ in
+        let observer2 = NotificationCenter.default.addObserver(forName: .openDocument, object: nil, queue: .main) { _ in
             viewModel.openDocument()
         }
 
-        NotificationCenter.default.addObserver(forName: .saveDocument, object: nil, queue: .main) { _ in
+        let observer3 = NotificationCenter.default.addObserver(forName: .saveDocument, object: nil, queue: .main) { _ in
             viewModel.saveDocument()
         }
 
-        NotificationCenter.default.addObserver(forName: .saveDocumentAs, object: nil, queue: .main) { _ in
+        let observer4 = NotificationCenter.default.addObserver(forName: .saveDocumentAs, object: nil, queue: .main) { _ in
             viewModel.saveDocumentAs()
         }
 
-        NotificationCenter.default.addObserver(forName: .openRecentFile, object: nil, queue: .main) { notification in
+        let observer5 = NotificationCenter.default.addObserver(forName: .openRecentFile, object: nil, queue: .main) { notification in
             if let url = notification.object as? URL {
                 viewModel.loadDocument(from: url)
             }
         }
+
+        notificationObservers = [observer1, observer2, observer3, observer4, observer5]
+    }
+
+    private func removeNotificationObservers() {
+        for observer in notificationObservers {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        notificationObservers = []
     }
 }

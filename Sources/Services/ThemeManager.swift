@@ -67,7 +67,9 @@ class ThemeManager: ObservableObject {
         guard let paths = UserDefaults.standard.stringArray(forKey: recentFilesKey) else {
             return []
         }
-        return paths.compactMap { URL(fileURLWithPath: $0) }
+        let urls = paths.compactMap { URL(fileURLWithPath: $0) }
+        // Filter to only return files that actually exist
+        return urls.filter { FileManager.default.fileExists(atPath: $0.path) }
     }
 
     func addRecentFile(_ url: URL) {
@@ -77,6 +79,12 @@ class ThemeManager: ObservableObject {
         if files.count > maxRecentFiles {
             files = Array(files.prefix(maxRecentFiles))
         }
+        UserDefaults.standard.set(files.map { $0.path }, forKey: recentFilesKey)
+    }
+
+    func removeRecentFile(_ url: URL) {
+        var files = recentFiles()
+        files.removeAll { $0 == url }
         UserDefaults.standard.set(files.map { $0.path }, forKey: recentFilesKey)
     }
 }

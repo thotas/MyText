@@ -8,6 +8,7 @@ class EditorViewModel: ObservableObject {
     @Published var detectedLanguage: ProgrammingLanguage = .plainText
     @Published var showSidebar: Bool = true
     @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
 
     let syntaxHighlighter: SyntaxHighlighter
     let themeManager = ThemeManager.shared
@@ -67,12 +68,24 @@ class EditorViewModel: ObservableObject {
 
     func loadDocument(from url: URL) {
         isLoading = true
+        errorMessage = nil
+
+        // Check if file exists
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            errorMessage = "File not found: \(url.lastPathComponent)"
+            isLoading = false
+            // Remove stale entry from recent files
+            themeManager.removeRecentFile(url)
+            return
+        }
+
         do {
             let content = try String(contentsOf: url, encoding: .utf8)
             document = TextDocument(content: content, fileURL: url)
             detectLanguage()
             themeManager.addRecentFile(url)
         } catch {
+            errorMessage = "Error loading document: \(error.localizedDescription)"
             print("Error loading document: \(error)")
         }
         isLoading = false

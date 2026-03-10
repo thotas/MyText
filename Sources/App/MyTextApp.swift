@@ -4,6 +4,10 @@ import SwiftUI
 struct MyTextApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
+    private var recentFiles: [URL] {
+        ThemeManager.shared.recentFiles()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -24,13 +28,13 @@ struct MyTextApp: App {
                 Divider()
 
                 Menu("Recent Files") {
-                    ForEach(ThemeManager.shared.recentFiles(), id: \.self) { url in
+                    ForEach(recentFiles, id: \.self) { url in
                         Button(url.lastPathComponent) {
                             NotificationCenter.default.post(name: .openRecentFile, object: url)
                         }
                     }
                 }
-                .disabled(ThemeManager.shared.recentFiles().isEmpty)
+                .disabled(recentFiles.isEmpty)
 
                 Divider()
 
