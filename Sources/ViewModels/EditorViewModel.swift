@@ -214,8 +214,18 @@ class EditorViewModel: ObservableObject {
             return
         }
 
+        // Trim trailing whitespace if setting is enabled
+        var contentToSave = document.content
+        if UserDefaults.standard.bool(forKey: "trimTrailingWhitespace") {
+            contentToSave = trimTrailingWhitespace(from: contentToSave)
+            // Update document content if we trimmed
+            if contentToSave != document.content {
+                document.content = contentToSave
+            }
+        }
+
         do {
-            try document.content.write(to: url, atomically: true, encoding: document.encoding)
+            try contentToSave.write(to: url, atomically: true, encoding: document.encoding)
             document.isModified = false
         } catch {
             print("Error saving document: \(error)")
@@ -231,6 +241,18 @@ class EditorViewModel: ObservableObject {
             document.fileURL = url
             saveDocument()
         }
+    }
+
+    private func trimTrailingWhitespace(from text: String) -> String {
+        let lines = text.components(separatedBy: "\n")
+        let trimmedLines = lines.map { line in
+            var trimmed = line
+            while let last = trimmed.last, last == " " || last == "\t" {
+                trimmed.removeLast()
+            }
+            return trimmed
+        }
+        return trimmedLines.joined(separator: "\n")
     }
 
     func updateContent(_ newContent: String) {

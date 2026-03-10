@@ -5,6 +5,7 @@ struct SettingsView: View {
     @State private var fontSize: Double = ThemeManager.shared.fontSize()
     @State private var tabWidth: Int = ThemeManager.shared.tabWidth()
     @State private var showLineNumbers: Bool = ThemeManager.shared.showLineNumbers()
+    @State private var trimTrailingWhitespace: Bool = UserDefaults.standard.bool(forKey: "trimTrailingWhitespace")
     @State private var showSaveThemeSheet: Bool = false
     @State private var newThemeName: String = ""
     @State private var showImportError: Bool = false
@@ -134,6 +135,13 @@ struct SettingsView: View {
                     Toggle("Show Line Numbers", isOn: $showLineNumbers)
                         .onChange(of: showLineNumbers) { _, newValue in
                             themeManager.setShowLineNumbers(newValue)
+                        }
+                }
+
+                Section("Save") {
+                    Toggle("Trim Trailing Whitespace on Save", isOn: $trimTrailingWhitespace)
+                        .onChange(of: trimTrailingWhitespace) { _, newValue in
+                            UserDefaults.standard.set(newValue, forKey: "trimTrailingWhitespace")
                         }
                 }
             }
