@@ -266,6 +266,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Replace All | Replace all matches | ✅ Implemented | P0 |
 | Find Next/Previous | Navigate matches | ✅ Implemented | P0 |
 | Highlight Matches | Visual highlight of all matches | ✅ Implemented | P0 |
+| Find Selection | Search for selected text | ✅ Implemented | P1 |
 
 #### F5: View Options
 
@@ -346,6 +347,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+Opt+S | Sort Lines | ✅ |
 | Cmd+Shift+I | Show Invisibles | ✅ |
 | Cmd+Shift+Option+T | Trim Trailing Whitespace | ✅ |
+| Cmd+E | Find Selection | ✅ |
 
 ---
 

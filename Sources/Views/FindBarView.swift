@@ -5,7 +5,7 @@ struct FindBarView: View {
     @ObservedObject var viewModel: EditorViewModel
     @Binding var isPresented: Bool
     var themeManager: ThemeManager
-    @State private var searchText = ""
+    @State private var searchText: String = ""
     @State private var replaceText = ""
     @State private var caseSensitive = false
     @State private var useRegex = false
@@ -13,6 +13,24 @@ struct FindBarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // Initialize searchText from viewModel.findQuery when view appears
+            Rectangle()
+                .fill(Color.clear)
+                .frame(width: 1, height: 1)
+                .onAppear {
+                    if !viewModel.findQuery.isEmpty && searchText.isEmpty {
+                        searchText = viewModel.findQuery
+                        highlightMatches()
+                    }
+                }
+                .onChange(of: viewModel.findQuery) { _, newValue in
+                    if !newValue.isEmpty {
+                        searchText = newValue
+                        highlightMatches()
+                    }
+                }
+
+            // Search field row
             // Search field row
             HStack(spacing: 12) {
                 Image(systemName: "magnifyingglass")

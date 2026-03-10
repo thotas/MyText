@@ -351,6 +351,23 @@ struct ContentView: View {
             self.viewModel.trimTrailingWhitespaceCommand()
         }
 
+        // Find Selection observer
+        let observerFindSelection = NotificationCenter.default.addObserver(forName: .findSelection, object: nil, queue: .main) { _ in
+            // Get selected text and set as find query
+            if let textView = self.viewModel.textView {
+                let selectedRange = textView.selectedRange()
+                if selectedRange.length > 0 {
+                    let text = textView.string as NSString
+                    let selectedText = text.substring(with: selectedRange)
+                    self.viewModel.findQuery = selectedText
+                }
+            }
+            // Show find bar
+            if !self.showFindBar {
+                self.showFindBar = true
+            }
+        }
+
         // Split view observers
         let observerSplitH = NotificationCenter.default.addObserver(forName: .splitHorizontal, object: nil, queue: .main) { _ in
             self.splitMode = self.splitMode == .horizontal ? .none : .horizontal
@@ -364,7 +381,7 @@ struct ContentView: View {
             self.splitMode = .none
         }
 
-        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerToggleInvisibles, observerTrimTrailingWhitespace, observerSplitH, observerSplitV, observerSplitClose]
+        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerToggleInvisibles, observerTrimTrailingWhitespace, observerFindSelection, observerSplitH, observerSplitV, observerSplitClose]
     }
 
     private func removeNotificationObservers() {

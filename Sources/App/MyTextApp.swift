@@ -194,6 +194,37 @@ struct MyTextApp: App {
                 }
                 .keyboardShortcut("w", modifiers: [.command, .option])
             }
+
+            CommandGroup(replacing: .newItem) {
+                Button("Find...") {
+                    NotificationCenter.default.post(name: .findNext, object: nil)
+                }
+                .keyboardShortcut("f", modifiers: .command)
+
+                Button("Find Selection") {
+                    NotificationCenter.default.post(name: .findSelection, object: nil)
+                }
+                .keyboardShortcut("e", modifiers: .command)
+
+                Divider()
+
+                Button("Find Next") {
+                    NotificationCenter.default.post(name: .findNext, object: nil)
+                }
+                .keyboardShortcut("g", modifiers: .command)
+
+                Button("Find Previous") {
+                    NotificationCenter.default.post(name: .findPrevious, object: nil)
+                }
+                .keyboardShortcut("g", modifiers: [.command, .shift])
+
+                Divider()
+
+                Button("Go to Line...") {
+                    NotificationCenter.default.post(name: .goToLine, object: nil)
+                }
+                .keyboardShortcut("l", modifiers: .command)
+            }
         }
 
         Settings {
@@ -245,4 +276,5 @@ extension Notification.Name {
     static let toggleInvisibles = Notification.Name("toggleInvisibles")
     static let refreshEditor = Notification.Name("refreshEditor")
     static let trimTrailingWhitespace = Notification.Name("trimTrailingWhitespace")
+    static let findSelection = Notification.Name("findSelection")
 }

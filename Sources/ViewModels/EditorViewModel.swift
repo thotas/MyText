@@ -25,6 +25,7 @@ class EditorViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var wordWrap: Bool = false
     @Published var foldRegions: [FoldRegion] = []
+    @Published var findQuery: String = ""
 
     // Weak reference to text view for line operations
     weak var textView: NSTextView?
