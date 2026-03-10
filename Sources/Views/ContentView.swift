@@ -368,6 +368,16 @@ struct ContentView: View {
             }
         }
 
+        // Convert to Spaces observer
+        let observerConvertToSpaces = NotificationCenter.default.addObserver(forName: .convertToSpaces, object: nil, queue: .main) { _ in
+            self.viewModel.convertToSpaces()
+        }
+
+        // Convert to Tabs observer
+        let observerConvertToTabs = NotificationCenter.default.addObserver(forName: .convertToTabs, object: nil, queue: .main) { _ in
+            self.viewModel.convertToTabs()
+        }
+
         // Split view observers
         let observerSplitH = NotificationCenter.default.addObserver(forName: .splitHorizontal, object: nil, queue: .main) { _ in
             self.splitMode = self.splitMode == .horizontal ? .none : .horizontal
@@ -381,7 +391,7 @@ struct ContentView: View {
             self.splitMode = .none
         }
 
-        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerToggleInvisibles, observerTrimTrailingWhitespace, observerFindSelection, observerSplitH, observerSplitV, observerSplitClose]
+        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerToggleInvisibles, observerTrimTrailingWhitespace, observerFindSelection, observerConvertToSpaces, observerConvertToTabs, observerSplitH, observerSplitV, observerSplitClose]
     }
 
     private func removeNotificationObservers() {

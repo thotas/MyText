@@ -242,6 +242,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Line Operations | Duplicate line, move line up/down | ✅ Implemented | P0 |
 | Auto-indent | Maintain indentation on newline | ✅ Implemented | P0 |
 | Tab/Shift+Tab | Insert/remove indentation | ✅ Implemented | P0 |
+| Convert Indentation | Convert between tabs and spaces | ✅ Implemented | P1 |
 | Bracket Matching | Highlight matching brackets when cursor on one | ✅ Implemented | P1 |
 
 #### F3: Syntax Highlighting
@@ -348,6 +349,8 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+Shift+I | Show Invisibles | ✅ |
 | Cmd+Shift+Option+T | Trim Trailing Whitespace | ✅ |
 | Cmd+E | Find Selection | ✅ |
+| Cmd+Shift+\ | Convert to Spaces | ✅ |
+| Cmd+Option+\ | Convert to Tabs | ✅ |
 
 ---
 

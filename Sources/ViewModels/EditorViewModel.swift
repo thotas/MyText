@@ -264,6 +264,67 @@ class EditorViewModel: ObservableObject {
         }
     }
 
+    func convertToSpaces() {
+        let tabWidth = self.tabWidth
+        let converted = convertIndentation(in: document.content, toSpaces: true, tabWidth: tabWidth)
+        if converted != document.content {
+            document.content = converted
+            document.isModified = true
+        }
+    }
+
+    func convertToTabs() {
+        let tabWidth = self.tabWidth
+        let converted = convertIndentation(in: document.content, toSpaces: false, tabWidth: tabWidth)
+        if converted != document.content {
+            document.content = converted
+            document.isModified = true
+        }
+    }
+
+    private func convertIndentation(in text: String, toSpaces: Bool, tabWidth: Int) -> String {
+        let lines = text.components(separatedBy: "\n")
+        let convertedLines = lines.map { line -> String in
+            var result = ""
+            var i = line.startIndex
+            while i < line.endIndex {
+                let char = line[i]
+                if char == "\t" {
+                    if toSpaces {
+                        result += String(repeating: " ", count: tabWidth)
+                    } else {
+                        result += "\t"
+                    }
+                } else if char == " " {
+                    // Check if it's leading whitespace that could be a tab
+                    var spaceCount = 0
+                    var j = i
+                    while j < line.endIndex && line[j] == " " && spaceCount < tabWidth {
+                        spaceCount += 1
+                        j = line.index(after: j)
+                    }
+                    if spaceCount == tabWidth && !toSpaces {
+                        // Convert exactly tabWidth spaces to a tab
+                        result += "\t"
+                        i = j
+                    } else if spaceCount == tabWidth && toSpaces {
+                        // Already spaces, keep as is
+                        result += String(repeating: " ", count: spaceCount)
+                        i = j
+                    } else {
+                        result.append(char)
+                        i = line.index(after: i)
+                    }
+                } else {
+                    result.append(char)
+                    i = line.index(after: i)
+                }
+            }
+            return result
+        }
+        return convertedLines.joined(separator: "\n")
+    }
+
     func updateContent(_ newContent: String) {
         document.content = newContent
         document.isModified = true

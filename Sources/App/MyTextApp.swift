@@ -72,6 +72,18 @@ struct MyTextApp: App {
                 }
                 .keyboardShortcut("t", modifiers: [.command, .shift, .option])
 
+                Menu("Convert Indentation") {
+                    Button("Convert to Spaces") {
+                        NotificationCenter.default.post(name: .convertToSpaces, object: nil)
+                    }
+                    .keyboardShortcut("\\", modifiers: [.command, .shift])
+
+                    Button("Convert to Tabs") {
+                        NotificationCenter.default.post(name: .convertToTabs, object: nil)
+                    }
+                    .keyboardShortcut("\\", modifiers: [.command, .option])
+                }
+
                 Divider()
 
                 Button("Close Tab") {
@@ -277,4 +289,6 @@ extension Notification.Name {
     static let refreshEditor = Notification.Name("refreshEditor")
     static let trimTrailingWhitespace = Notification.Name("trimTrailingWhitespace")
     static let findSelection = Notification.Name("findSelection")
+    static let convertToSpaces = Notification.Name("convertToSpaces")
+    static let convertToTabs = Notification.Name("convertToTabs")
 }
