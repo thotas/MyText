@@ -54,6 +54,16 @@ struct StatusBarView: View {
                 }
                 .foregroundStyle(Color(themeManager.currentTheme.comment))
             }
+
+            // Error message
+            if let errorMessage = viewModel.errorMessage {
+                HStack(spacing: 4) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 10))
+                    Text(errorMessage)
+                }
+                .foregroundStyle(Color.red)
+            }
         }
         .font(.system(size: 11))
         .padding(.horizontal, 12)
