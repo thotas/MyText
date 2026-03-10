@@ -502,6 +502,9 @@ struct SimpleTextEditor: NSViewRepresentable {
             // Apply fold styling to folded lines
             applyFoldStyling(to: textView)
 
+            // Apply trailing whitespace highlighting
+            applyTrailingWhitespaceHighlighting(to: textView)
+
             // Restore selection
             if selectedRange.location <= textView.string.count {
                 textView.setSelectedRange(selectedRange)
@@ -578,6 +581,49 @@ struct SimpleTextEditor: NSViewRepresentable {
                         // Can add a marker or styling here
                     }
                 }
+            }
+        }
+
+        // MARK: - Trailing Whitespace Highlighting
+
+        private func applyTrailingWhitespaceHighlighting(to textView: NSTextView) {
+            guard ThemeManager.shared.highlightTrailingWhitespace() else { return }
+
+            let content = textView.string as NSString
+            let theme = parent.themeManager.currentTheme
+
+            // Use a subtle red color for trailing whitespace
+            let trailingColor = NSColor(red: 0.8, green: 0.3, blue: 0.3, alpha: 0.4)
+
+            let lines = content.components(separatedBy: "\n")
+            var currentLocation = 0
+
+            for line in lines {
+                // Find trailing whitespace in this line
+                let lineLength = line.count
+                var trailingStart = lineLength
+
+                // Scan from end of line to find trailing whitespace
+                var index = lineLength - 1
+                while index >= 0 {
+                    let char = line[line.index(line.startIndex, offsetBy: index)]
+                    if char == " " || char == "\t" {
+                        trailingStart = index
+                        index -= 1
+                    } else {
+                        break
+                    }
+                }
+
+                // If there's trailing whitespace, highlight it
+                if trailingStart < lineLength {
+                    let trailingLength = lineLength - trailingStart
+                    let range = NSRange(location: currentLocation + trailingStart, length: trailingLength)
+                    textView.textStorage?.addAttribute(.foregroundColor, value: trailingColor, range: range)
+                }
+
+                // Move to next line (+1 for newline character)
+                currentLocation += lineLength + 1
             }
         }
     }

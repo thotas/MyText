@@ -189,6 +189,14 @@ class ThemeManager: ObservableObject {
         UserDefaults.standard.set(show, forKey: "showInvisibles")
     }
 
+    func highlightTrailingWhitespace() -> Bool {
+        UserDefaults.standard.bool(forKey: "highlightTrailingWhitespace")
+    }
+
+    func setHighlightTrailingWhitespace(_ highlight: Bool) {
+        UserDefaults.standard.set(highlight, forKey: "highlightTrailingWhitespace")
+    }
+
     private let recentFilesKey = "recentFiles"
     private let maxRecentFiles = 10
 

@@ -6,6 +6,7 @@ struct SettingsView: View {
     @State private var tabWidth: Int = ThemeManager.shared.tabWidth()
     @State private var showLineNumbers: Bool = ThemeManager.shared.showLineNumbers()
     @State private var showInvisibles: Bool = ThemeManager.shared.showInvisibles()
+    @State private var highlightTrailingWhitespace: Bool = ThemeManager.shared.highlightTrailingWhitespace()
     @State private var trimTrailingWhitespace: Bool = UserDefaults.standard.bool(forKey: "trimTrailingWhitespace")
     @State private var showSaveThemeSheet: Bool = false
     @State private var newThemeName: String = ""
@@ -147,6 +148,11 @@ struct SettingsView: View {
                     Toggle("Show Invisibles", isOn: $showInvisibles)
                         .onChange(of: showInvisibles) { _, newValue in
                             themeManager.setShowInvisibles(newValue)
+                        }
+
+                    Toggle("Highlight Trailing Whitespace", isOn: $highlightTrailingWhitespace)
+                        .onChange(of: highlightTrailingWhitespace) { _, newValue in
+                            themeManager.setHighlightTrailingWhitespace(newValue)
                         }
                 }
 

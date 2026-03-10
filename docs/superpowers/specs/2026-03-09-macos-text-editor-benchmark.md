@@ -278,6 +278,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Theme Selection | Switch between themes | ✅ Implemented | P0 |
 | Split View | Split editor horizontally or vertically | ✅ Implemented | P1 |
 | Show Invisibles | Display spaces, tabs as visible characters | ✅ Implemented | P1 |
+| Highlight Trailing Whitespace | Highlight trailing whitespace in subtle red | ✅ Implemented | P1 |
 
 #### F6: Themes
 
@@ -413,6 +414,7 @@ Mark each item against the current codebase to identify work required.
 | 4.29 | Theme Selection | [✓] | ThemeManager + Settings |
 | 4.30 | Split View | [✓] | SplitMode enum in ContentView |
 | 4.30a | Show Invisibles | [✓] | layoutManager.showsInvisibleCharacters in EditorView, settings toggle |
+| 4.30b | Highlight Trailing Whitespace | [✓] | applyTrailingWhitespaceHighlighting in EditorView, settings toggle |
 
 ### Themes
 
