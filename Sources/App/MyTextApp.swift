@@ -145,6 +145,23 @@ struct MyTextApp: App {
                     NotificationCenter.default.post(name: .unfoldAll, object: nil)
                 }
                 .keyboardShortcut("=", modifiers: [.command, .option])
+
+                Divider()
+
+                Button("Split Horizontal") {
+                    NotificationCenter.default.post(name: .splitHorizontal, object: nil)
+                }
+                .keyboardShortcut("s", modifiers: [.command, .option])
+
+                Button("Split Vertical") {
+                    NotificationCenter.default.post(name: .splitVertical, object: nil)
+                }
+                .keyboardShortcut("d", modifiers: [.command, .option])
+
+                Button("Close Split") {
+                    NotificationCenter.default.post(name: .splitClose, object: nil)
+                }
+                .keyboardShortcut("w", modifiers: [.command, .option])
             }
         }
 
@@ -188,4 +205,7 @@ extension Notification.Name {
     static let goToLine = Notification.Name("goToLine")
     static let findNext = Notification.Name("findNext")
     static let findPrevious = Notification.Name("findPrevious")
+    static let splitHorizontal = Notification.Name("splitHorizontal")
+    static let splitVertical = Notification.Name("splitVertical")
+    static let splitClose = Notification.Name("splitClose")
 }

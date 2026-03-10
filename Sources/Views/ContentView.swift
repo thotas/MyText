@@ -9,9 +9,16 @@ struct ContentView: View {
     @State private var showSidebar = true
     @State private var tabs: [TabItem] = []
     @State private var selectedTab: TabItem?
+    @State private var splitMode: SplitMode = .none
 
     // Store notification observers to remove them later
     @State private var notificationObservers: [NSObjectProtocol] = []
+
+    enum SplitMode {
+        case none
+        case horizontal  // Top/bottom
+        case vertical    // Left/right
+    }
 
     var body: some View {
         HSplitView {
@@ -42,9 +49,8 @@ struct ContentView: View {
                 // Toolbar
                 ToolbarView(viewModel: viewModel, showFindBar: $showFindBar, showSidebar: $showSidebar, themeManager: themeManager)
 
-                // Editor
-                SimpleTextEditor(viewModel: viewModel, themeManager: themeManager)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // Editor (with optional split)
+                editorContent
 
                 // Status bar
                 StatusBarView(viewModel: viewModel, themeManager: themeManager)
@@ -94,6 +100,29 @@ struct ContentView: View {
                     return nil
                 }
                 return event
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var editorContent: some View {
+        switch splitMode {
+        case .none:
+            SimpleTextEditor(viewModel: viewModel, themeManager: themeManager)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .horizontal:
+            VSplitView {
+                SimpleTextEditor(viewModel: viewModel, themeManager: themeManager)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                SimpleTextEditor(viewModel: viewModel, themeManager: themeManager)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+        case .vertical:
+            HSplitView {
+                SimpleTextEditor(viewModel: viewModel, themeManager: themeManager)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                SimpleTextEditor(viewModel: viewModel, themeManager: themeManager)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
     }
@@ -297,7 +326,20 @@ struct ContentView: View {
             self.viewModel.selectLine()
         }
 
-        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20]
+        // Split view observers
+        let observerSplitH = NotificationCenter.default.addObserver(forName: .splitHorizontal, object: nil, queue: .main) { _ in
+            self.splitMode = self.splitMode == .horizontal ? .none : .horizontal
+        }
+
+        let observerSplitV = NotificationCenter.default.addObserver(forName: .splitVertical, object: nil, queue: .main) { _ in
+            self.splitMode = self.splitMode == .vertical ? .none : .vertical
+        }
+
+        let observerSplitClose = NotificationCenter.default.addObserver(forName: .splitClose, object: nil, queue: .main) { _ in
+            self.splitMode = .none
+        }
+
+        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20, observerSplitH, observerSplitV, observerSplitClose]
     }
 
     private func removeNotificationObservers() {
