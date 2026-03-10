@@ -573,6 +573,51 @@ class EditorViewModel: ObservableObject {
         return nil
     }
 
+    func selectAllOccurrences() {
+        guard let textView = textView else { return }
+
+        let selectedRange = textView.selectedRange()
+        guard selectedRange.length > 0 else { return }
+
+        let string = textView.string as NSString
+        let selectedText = string.substring(with: selectedRange)
+
+        guard !selectedText.isEmpty else { return }
+
+        // Find all occurrences
+        var allRanges: [NSRange] = []
+        var searchStart = 0
+
+        while searchStart < string.length {
+            let searchRange = NSRange(location: searchStart, length: string.length - searchStart)
+            let searchString = string.substring(with: searchRange)
+
+            guard let range = searchString.range(of: selectedText, options: .caseInsensitive) else {
+                break
+            }
+
+            let absoluteStart = searchRange.location + searchString.distance(from: searchString.startIndex, to: range.lowerBound)
+            let foundRange = NSRange(location: absoluteStart, length: selectedText.count)
+
+            // Don't add the original selection (we'll keep it as the main selection)
+            if foundRange != selectedRange {
+                allRanges.append(foundRange)
+            }
+
+            searchStart = absoluteStart + selectedText.count
+        }
+
+        guard !allRanges.isEmpty else { return }
+
+        // Select all occurrences by combining all ranges
+        // We'll select from first to last occurrence
+        let firstRange = allRanges.first!
+        let lastRange = allRanges.last!
+        let combinedRange = NSRange(location: firstRange.location, length: lastRange.location + lastRange.length - firstRange.location)
+
+        textView.setSelectedRange(combinedRange)
+    }
+
     func toggleComment() {
         guard let textView = textView else { return }
         let content = textView.string

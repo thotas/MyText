@@ -351,6 +351,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+Shift+U | Uppercase Selection | ✅ |
 | Cmd+Opt+U+Shift | Lowercase Selection | ✅ |
 | Cmd+Opt+S | Sort Lines | ✅ |
+| Cmd+Opt+L | Select All Occurrences | ✅ |
 | Cmd+Shift+I | Show Invisibles | ✅ |
 | Cmd+Shift+Option+T | Trim Trailing Whitespace | ✅ |
 | Cmd+E | Find Selection | ✅ |

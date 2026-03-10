@@ -141,6 +141,11 @@ struct MyTextApp: App {
                 }
                 .keyboardShortcut("m", modifiers: [.command, .shift])
 
+                Button("Select All Occurrences") {
+                    NotificationCenter.default.post(name: .selectAllOccurrences, object: nil)
+                }
+                .keyboardShortcut("l", modifiers: [.command, .option])
+
                 Button("Select Line") {
                     NotificationCenter.default.post(name: .selectLine, object: nil)
                 }
@@ -297,4 +302,5 @@ extension Notification.Name {
     static let convertToSpaces = Notification.Name("convertToSpaces")
     static let convertToTabs = Notification.Name("convertToTabs")
     static let jumpToMatchingBracket = Notification.Name("jumpToMatchingBracket")
+    static let selectAllOccurrences = Notification.Name("selectAllOccurrences")
 }

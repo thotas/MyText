@@ -314,6 +314,10 @@ struct ContentView: View {
             self.viewModel.jumpToMatchingBracket()
         }
 
+        let observerSelectAllOccurrences = NotificationCenter.default.addObserver(forName: .selectAllOccurrences, object: nil, queue: .main) { _ in
+            self.viewModel.selectAllOccurrences()
+        }
+
         let observer17 = NotificationCenter.default.addObserver(forName: .toggleFold, object: nil, queue: .main) { _ in
             self.viewModel.toggleFoldAtCursor()
         }
