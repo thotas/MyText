@@ -217,6 +217,23 @@ class ThemeManager: ObservableObject {
         UserDefaults.standard.set(seconds, forKey: "autoSaveInterval")
     }
 
+    func showLineLengthGuide() -> Bool {
+        UserDefaults.standard.bool(forKey: "showLineLengthGuide")
+    }
+
+    func setShowLineLengthGuide(_ show: Bool) {
+        UserDefaults.standard.set(show, forKey: "showLineLengthGuide")
+    }
+
+    func lineLengthGuideColumn() -> Int {
+        let column = UserDefaults.standard.integer(forKey: "lineLengthGuideColumn")
+        return column > 0 ? column : 80 // Default 80 characters
+    }
+
+    func setLineLengthGuideColumn(_ column: Int) {
+        UserDefaults.standard.set(column, forKey: "lineLengthGuideColumn")
+    }
+
     private let recentFilesKey = "recentFiles"
     private let maxRecentFiles = 10
 

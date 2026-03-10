@@ -281,6 +281,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Theme Selection | Switch between themes | ✅ Implemented | P0 |
 | Split View | Split editor horizontally or vertically | ✅ Implemented | P1 |
 | Show Invisibles | Display spaces, tabs as visible characters | ✅ Implemented | P1 |
+| Line Length Guide | Show vertical guide at specified column | ✅ Implemented | P1 |
 | Highlight Trailing Whitespace | Highlight trailing whitespace in subtle red | ✅ Implemented | P1 |
 
 #### F6: Themes
@@ -353,6 +354,7 @@ Ln {line}, Col {col} | {language} | {encoding} | {lineEnding} | ● Modified
 | Cmd+Shift+\ | Convert to Spaces | ✅ |
 | Cmd+Option+\ | Convert to Tabs | ✅ |
 | (Automatic) | Auto-save | ✅ |
+| (Visual) | Line Length Guide | ✅ |
 
 ---
 

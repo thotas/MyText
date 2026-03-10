@@ -139,6 +139,14 @@ struct SimpleTextEditor: NSViewRepresentable {
         // Apply initial highlighting
         context.coordinator.applyHighlighting(to: textView)
 
+        // Add line length guide overlay
+        let lineLengthGuide = LineLengthGuideView(frame: NSRect(x: 0, y: 0, width: scrollView.contentSize.width, height: scrollView.contentSize.height))
+        lineLengthGuide.autoresizingMask = [.width, .height]
+        scrollView.addSubview(lineLengthGuide)
+
+        // Store reference for updates
+        context.coordinator.lineLengthGuideView = lineLengthGuide
+
         return scrollView
     }
 
@@ -192,6 +200,7 @@ struct SimpleTextEditor: NSViewRepresentable {
         private var lastContentHash: Int = 0
         private var currentLineHighlight: NSRange?
         private var bracketMatchHighlight: NSRange?
+        var lineLengthGuideView: LineLengthGuideView?
 
         // Bracket pairs: opening -> closing
         private let bracketPairs: [Character: Character] = [
@@ -301,6 +310,8 @@ struct SimpleTextEditor: NSViewRepresentable {
                       let textView = self.parent.viewModel.textView else { return }
                 // Re-apply the showsInvisibleCharacters setting
                 textView.layoutManager?.showsInvisibleCharacters = ThemeManager.shared.showInvisibles()
+                // Refresh line length guide
+                self.lineLengthGuideView?.needsDisplay = true
             }
         }
 
@@ -626,5 +637,35 @@ struct SimpleTextEditor: NSViewRepresentable {
                 currentLocation += lineLength + 1
             }
         }
+    }
+}
+
+// MARK: - Line Length Guide View
+
+class LineLengthGuideView: NSView {
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+
+        guard ThemeManager.shared.showLineLengthGuide() else { return }
+
+        let column = ThemeManager.shared.lineLengthGuideColumn()
+        let fontSize = ThemeManager.shared.fontSize()
+
+        // Calculate x position based on character width (approximate for monospace)
+        let charWidth = floor(fontSize * 0.6) // Approximate width for SF Mono
+        let gutterWidth: CGFloat = 48
+        let padding: CGFloat = 8
+        let xPosition = gutterWidth + padding + CGFloat(column - 1) * charWidth
+
+        // Draw vertical line
+        let path = NSBezierPath()
+        path.move(to: NSPoint(x: xPosition, y: 0))
+        path.line(to: NSPoint(x: xPosition, y: bounds.height))
+
+        // Use a subtle color for the guide line
+        let guideColor = NSColor.secondaryLabelColor.withAlphaComponent(0.3)
+        guideColor.setStroke()
+        path.lineWidth = 1
+        path.stroke()
     }
 }

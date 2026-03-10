@@ -8,6 +8,8 @@ struct SettingsView: View {
     @State private var showInvisibles: Bool = ThemeManager.shared.showInvisibles()
     @State private var highlightTrailingWhitespace: Bool = ThemeManager.shared.highlightTrailingWhitespace()
     @State private var autoSaveEnabled: Bool = ThemeManager.shared.autoSaveEnabled()
+    @State private var showLineLengthGuide: Bool = ThemeManager.shared.showLineLengthGuide()
+    @State private var lineLengthGuideColumn: Double = Double(ThemeManager.shared.lineLengthGuideColumn())
     @State private var trimTrailingWhitespace: Bool = UserDefaults.standard.bool(forKey: "trimTrailingWhitespace")
     @State private var showSaveThemeSheet: Bool = false
     @State private var newThemeName: String = ""
@@ -155,6 +157,25 @@ struct SettingsView: View {
                         .onChange(of: highlightTrailingWhitespace) { _, newValue in
                             themeManager.setHighlightTrailingWhitespace(newValue)
                         }
+
+                    Toggle("Line Length Guide", isOn: $showLineLengthGuide)
+                        .onChange(of: showLineLengthGuide) { _, newValue in
+                            themeManager.setShowLineLengthGuide(newValue)
+                        }
+
+                    if showLineLengthGuide {
+                        HStack {
+                            Text("Column:")
+                                .font(.system(size: 12))
+                            Slider(value: $lineLengthGuideColumn, in: 40...200, step: 10)
+                                .onChange(of: lineLengthGuideColumn) { _, newValue in
+                                    themeManager.setLineLengthGuideColumn(Int(newValue))
+                                }
+                            Text("\(Int(lineLengthGuideColumn))")
+                                .font(.system(size: 12))
+                                .frame(width: 30)
+                        }
+                    }
                 }
 
                 Section("Save") {
