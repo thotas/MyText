@@ -333,7 +333,7 @@ class EditorViewModel: ObservableObject {
 
     private func convertLineEndings(in text: String, to lineEnding: LineEnding) -> String {
         // First normalize to LF
-        var normalized = text
+        let normalized = text
             .replacingOccurrences(of: "\r\n", with: "\n")
             .replacingOccurrences(of: "\r", with: "\n")
 
@@ -393,8 +393,8 @@ class EditorViewModel: ObservableObject {
                     } else {
                         result += "\t"
                     }
+                    i = line.index(after: i)
                 } else if char == " " {
-                    // Check if it's leading whitespace that could be a tab
                     var spaceCount = 0
                     var j = i
                     while j < line.endIndex && line[j] == " " && spaceCount < tabWidth {
@@ -402,11 +402,9 @@ class EditorViewModel: ObservableObject {
                         j = line.index(after: j)
                     }
                     if spaceCount == tabWidth && !toSpaces {
-                        // Convert exactly tabWidth spaces to a tab
                         result += "\t"
                         i = j
                     } else if spaceCount == tabWidth && toSpaces {
-                        // Already spaces, keep as is
                         result += String(repeating: " ", count: spaceCount)
                         i = j
                     } else {
@@ -414,8 +412,9 @@ class EditorViewModel: ObservableObject {
                         i = line.index(after: i)
                     }
                 } else {
-                    result.append(char)
-                    i = line.index(after: i)
+                    // Non-whitespace: append rest of line as-is
+                    result += String(line[i...])
+                    break
                 }
             }
             return result
@@ -715,9 +714,10 @@ class EditorViewModel: ObservableObject {
         // Determine if line is commented
         let trimmedLine = line.trimmingCharacters(in: .whitespaces)
         if trimmedLine.hasPrefix("//") {
-            // Remove comment
-            let commentStart = line.firstIndex(of: "/")!
-            newLines[lineIndex] = String(line[..<commentStart]) + String(line[line.index(after: commentStart)...])
+            // Remove comment - find "//" and remove both characters
+            if let commentStart = line.range(of: "//") {
+                newLines[lineIndex] = String(line[..<commentStart.lowerBound]) + String(line[commentStart.upperBound...])
+            }
         } else {
             // Add comment at start (after any leading whitespace)
             let leadingWhitespace = String(line.prefix(while: { $0.isWhitespace }))

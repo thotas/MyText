@@ -19,6 +19,7 @@ struct MyTextApp: App {
                 }
         }
         .commands {
+            // File menu
             CommandGroup(replacing: .newItem) {
                 Button("New") {
                     NotificationCenter.default.post(name: .newDocument, object: nil)
@@ -76,29 +77,24 @@ struct MyTextApp: App {
                     Button("Convert to Spaces") {
                         NotificationCenter.default.post(name: .convertToSpaces, object: nil)
                     }
-                    .keyboardShortcut("\\", modifiers: [.command, .shift])
 
                     Button("Convert to Tabs") {
                         NotificationCenter.default.post(name: .convertToTabs, object: nil)
                     }
-                    .keyboardShortcut("\\", modifiers: [.command, .option])
                 }
 
                 Menu("Convert Line Endings") {
                     Button("Convert to LF (Unix)") {
                         NotificationCenter.default.post(name: .convertToLF, object: nil)
                     }
-                    .keyboardShortcut("e", modifiers: [.command, .shift, .option])
 
                     Button("Convert to CRLF (Windows)") {
                         NotificationCenter.default.post(name: .convertToCRLF, object: nil)
                     }
-                    .keyboardShortcut("e", modifiers: [.command, .option, .control])
 
                     Button("Convert to CR (Classic Mac)") {
                         NotificationCenter.default.post(name: .convertToCR, object: nil)
                     }
-                    .keyboardShortcut("e", modifiers: [.command, .control])
                 }
 
                 Divider()
@@ -109,28 +105,22 @@ struct MyTextApp: App {
                 .keyboardShortcut("w", modifiers: .command)
             }
 
+            // View menu - tab navigation
             CommandGroup(after: .toolbar) {
                 Divider()
                 Button("Show Next Tab") {
                     NotificationCenter.default.post(name: .nextTab, object: nil)
                 }
-                .keyboardShortcut(.tab, modifiers: .command)
                 .keyboardShortcut("]", modifiers: [.command, .shift])
 
                 Button("Show Previous Tab") {
                     NotificationCenter.default.post(name: .previousTab, object: nil)
                 }
-                .keyboardShortcut(.tab, modifiers: [.command, .shift])
                 .keyboardShortcut("[", modifiers: [.command, .shift])
             }
 
+            // Edit menu
             CommandGroup(after: .textEditing) {
-                Divider()
-                Button("Select All") {
-                    NSApp.sendAction(#selector(NSText.selectAll(_:)), to: nil, from: nil)
-                }
-                .keyboardShortcut("a", modifiers: .command)
-
                 Divider()
 
                 Button("Duplicate Line") {
@@ -183,7 +173,6 @@ struct MyTextApp: App {
                 Button("Sort Lines") {
                     NotificationCenter.default.post(name: .sortLines, object: nil)
                 }
-                .keyboardShortcut("s", modifiers: [.command, .option])
 
                 Button("Join Lines") {
                     NotificationCenter.default.post(name: .joinLines, object: nil)
@@ -192,27 +181,17 @@ struct MyTextApp: App {
 
                 Divider()
 
-                Button("Go to Line...") {
-                    NotificationCenter.default.post(name: .goToLine, object: nil)
-                }
-                .keyboardShortcut("l", modifiers: .command)
-
-                Divider()
-
                 Button("Toggle Fold") {
                     NotificationCenter.default.post(name: .toggleFold, object: nil)
                 }
-                .keyboardShortcut("\\", modifiers: .command)
 
                 Button("Fold All") {
                     NotificationCenter.default.post(name: .foldAll, object: nil)
                 }
-                .keyboardShortcut("0", modifiers: [.command, .option])
 
                 Button("Unfold All") {
                     NotificationCenter.default.post(name: .unfoldAll, object: nil)
                 }
-                .keyboardShortcut("=", modifiers: [.command, .option])
 
                 Divider()
 
@@ -228,7 +207,6 @@ struct MyTextApp: App {
                 Button("Show Line Length Guide") {
                     NotificationCenter.default.post(name: .toggleLineLengthGuide, object: nil)
                 }
-                .keyboardShortcut("r", modifiers: [.command, .shift])
 
                 Button("Auto-Save") {
                     NotificationCenter.default.post(name: .toggleAutoSave, object: nil)
@@ -239,17 +217,14 @@ struct MyTextApp: App {
                 Button("Split Horizontal") {
                     NotificationCenter.default.post(name: .splitHorizontal, object: nil)
                 }
-                .keyboardShortcut("s", modifiers: [.command, .option])
 
                 Button("Split Vertical") {
                     NotificationCenter.default.post(name: .splitVertical, object: nil)
                 }
-                .keyboardShortcut("d", modifiers: [.command, .option])
 
                 Button("Close Split") {
                     NotificationCenter.default.post(name: .splitClose, object: nil)
                 }
-                .keyboardShortcut("w", modifiers: [.command, .option])
 
                 Divider()
 
@@ -269,7 +244,8 @@ struct MyTextApp: App {
                 .keyboardShortcut("0", modifiers: .command)
             }
 
-            CommandGroup(replacing: .newItem) {
+            // Find menu
+            CommandMenu("Find") {
                 Button("Find...") {
                     NotificationCenter.default.post(name: .findNext, object: nil)
                 }

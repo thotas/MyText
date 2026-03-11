@@ -11,8 +11,9 @@ struct ContentView: View {
     @State private var selectedTab: TabItem?
     @State private var splitMode: SplitMode = .none
 
-    // Store notification observers to remove them later
+    // Store notification observers and event monitor to remove them later
     @State private var notificationObservers: [NSObjectProtocol] = []
+    @State private var eventMonitor: Any?
 
     enum SplitMode {
         case none
@@ -59,11 +60,15 @@ struct ContentView: View {
         .background(Color(themeManager.currentTheme.background))
         .onAppear {
             setupNotifications()
-            // Create initial tab
             createNewTab()
+            setupEventMonitor()
         }
         .onDisappear {
             removeNotificationObservers()
+            if let monitor = eventMonitor {
+                NSEvent.removeMonitor(monitor)
+                eventMonitor = nil
+            }
         }
         .sheet(isPresented: $showFindBar) {
             FindBarView(viewModel: viewModel, isPresented: $showFindBar, themeManager: themeManager)
@@ -73,49 +78,6 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showGoToLine) {
             GoToLineView(isPresented: $showGoToLine, viewModel: viewModel, themeManager: themeManager)
-        }
-        .onAppear {
-            NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
-                // Escape key closes overlays
-                if event.keyCode == 53 { // Escape key
-                    if self.showFindBar {
-                        self.showFindBar = false
-                        return nil
-                    }
-                    if self.showGoToLine {
-                        self.showGoToLine = false
-                        return nil
-                    }
-                    if self.showQuickOpen {
-                        self.showQuickOpen = false
-                        return nil
-                    }
-                }
-                if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "p" {
-                    showQuickOpen = true
-                    return nil
-                }
-                if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "l" {
-                    showGoToLine = true
-                    return nil
-                }
-                if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "g" {
-                    if event.modifierFlags.contains(.shift) {
-                        // Cmd+Shift+G: Find Previous
-                        NotificationCenter.default.post(name: .findPrevious, object: nil)
-                    } else {
-                        // Cmd+G: Find Next
-                        NotificationCenter.default.post(name: .findNext, object: nil)
-                    }
-                    return nil
-                }
-                if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "h" {
-                    // Cmd+H: Replace (show find bar)
-                    showFindBar = true
-                    return nil
-                }
-                return event
-            }
         }
     }
 
@@ -309,21 +271,8 @@ struct ContentView: View {
             // findPrevious will be triggered by FindBarView
         }
 
-        let observer13 = NotificationCenter.default.addObserver(forName: .duplicateLine, object: nil, queue: .main) { _ in
-            self.viewModel.duplicateLine()
-        }
-
-        let observer14 = NotificationCenter.default.addObserver(forName: .moveLineUp, object: nil, queue: .main) { _ in
-            self.viewModel.moveLineUp()
-        }
-
-        let observer15 = NotificationCenter.default.addObserver(forName: .moveLineDown, object: nil, queue: .main) { _ in
-            self.viewModel.moveLineDown()
-        }
-
-        let observer16 = NotificationCenter.default.addObserver(forName: .toggleComment, object: nil, queue: .main) { _ in
-            self.viewModel.toggleComment()
-        }
+        // Note: duplicateLine, moveLineUp, moveLineDown, toggleComment are handled
+        // by the EditorView Coordinator to avoid double execution
 
         let observerJumpBracket = NotificationCenter.default.addObserver(forName: .jumpToMatchingBracket, object: nil, queue: .main) { _ in
             self.viewModel.jumpToMatchingBracket()
@@ -469,7 +418,31 @@ struct ContentView: View {
             self.splitMode = .none
         }
 
-        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer13, observer14, observer15, observer16, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerJoinLines, observerToggleInvisibles, observerToggleAutoPair, observerZoomIn, observerZoomOut, observerZoomReset, observerToggleLineLengthGuide, observerToggleAutoSave, observerTrimTrailingWhitespace, observerFindSelection, observerConvertToSpaces, observerConvertToTabs, observerConvertToLF, observerConvertToCRLF, observerConvertToCR, observerSplitH, observerSplitV, observerSplitClose]
+        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerJoinLines, observerToggleInvisibles, observerToggleAutoPair, observerZoomIn, observerZoomOut, observerZoomReset, observerToggleLineLengthGuide, observerToggleAutoSave, observerTrimTrailingWhitespace, observerFindSelection, observerConvertToSpaces, observerConvertToTabs, observerConvertToLF, observerConvertToCRLF, observerConvertToCR, observerSplitH, observerSplitV, observerSplitClose, observerJumpBracket, observerSelectAllOccurrences]
+    }
+
+    private func setupEventMonitor() {
+        eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            if event.keyCode == 53 { // Escape
+                if self.showFindBar {
+                    self.showFindBar = false
+                    return nil
+                }
+                if self.showGoToLine {
+                    self.showGoToLine = false
+                    return nil
+                }
+                if self.showQuickOpen {
+                    self.showQuickOpen = false
+                    return nil
+                }
+            }
+            if event.modifierFlags.contains(.command) && event.charactersIgnoringModifiers == "h" {
+                self.showFindBar = true
+                return nil
+            }
+            return event
+        }
     }
 
     private func removeNotificationObservers() {

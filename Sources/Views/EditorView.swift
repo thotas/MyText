@@ -11,68 +11,6 @@ struct EditorView: View {
     }
 }
 
-// MARK: - Fold Gutter View
-
-struct FoldGutterView: View {
-    @ObservedObject var viewModel: EditorViewModel
-    var themeManager: ThemeManager
-    var onFoldClick: (Int) -> Void
-
-    private let gutterWidth: CGFloat = 24
-    private let lineHeight: CGFloat = 16
-
-    var body: some View {
-        // Use LazyVStack for performance with large files
-        ScrollView(.vertical, showsIndicators: false) {
-            LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(Array(viewModel.document.content.components(separatedBy: "\n").enumerated()), id: \.offset) { index, _ in
-                    let lineNumber = index + 1
-                    FoldIndicatorView(
-                        lineNumber: lineNumber,
-                        indicator: viewModel.getFoldIndicator(for: lineNumber),
-                        isFolded: viewModel.isLineFolded(lineNumber),
-                        onTap: { onFoldClick(lineNumber) }
-                    )
-                    .frame(height: lineHeight)
-                }
-            }
-        }
-        .frame(width: gutterWidth)
-        .background(Color(themeManager.currentTheme.gutterBackground))
-    }
-}
-
-struct FoldIndicatorView: View {
-    let lineNumber: Int
-    let indicator: EditorViewModel.FoldIndicator?
-    let isFolded: Bool
-    let onTap: () -> Void
-
-    var body: some View {
-        ZStack {
-            if let indicator = indicator {
-                switch indicator {
-                case .collapsed:
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.secondary)
-                        .onTapGesture { onTap() }
-                case .expanded:
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundColor(.secondary)
-                        .onTapGesture { onTap() }
-                case .end:
-                    Rectangle()
-                        .fill(Color.secondary.opacity(0.3))
-                        .frame(width: 2, height: 12)
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
 struct SimpleTextEditor: NSViewRepresentable {
     @ObservedObject var viewModel: EditorViewModel
     var themeManager: ThemeManager
@@ -133,12 +71,13 @@ struct SimpleTextEditor: NSViewRepresentable {
         // Apply initial highlighting
         context.coordinator.applyHighlighting(to: textView)
 
-        // Add line length guide overlay
-        let lineLengthGuide = LineLengthGuideView(frame: NSRect(x: 0, y: 0, width: scrollView.contentSize.width, height: scrollView.contentSize.height))
+        // Add line length guide as overlay on the text view's enclosing clip view
+        // Add line length guide overlay on the clip view
+        let clipView = scrollView.contentView
+        let lineLengthGuide = LineLengthGuideView(frame: clipView.bounds)
         lineLengthGuide.autoresizingMask = [.width, .height]
-        scrollView.addSubview(lineLengthGuide)
-
-        // Store reference for updates
+        lineLengthGuide.translatesAutoresizingMaskIntoConstraints = true
+        clipView.addSubview(lineLengthGuide, positioned: .above, relativeTo: textView)
         context.coordinator.lineLengthGuideView = lineLengthGuide
 
         return scrollView
@@ -659,13 +598,15 @@ struct SimpleTextEditor: NSViewRepresentable {
             }
         }
 
-        // MARK: - Auto-Indent
+        // MARK: - Auto-Indent and Auto-Pair
 
-        func textView(_ textView: NSTextView, shouldInsertText string: String, replacingRangeCharRange charRange: NSRange) -> Bool {
+        func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
+            guard let string = replacementString else { return true }
+
             // Handle auto-pair brackets and quotes
             if parent.themeManager.autoPairBrackets() {
-                if let pairResult = handleAutoPair(textView: textView, input: string, charRange: charRange) {
-                    textView.insertText(pairResult, replacementRange: charRange)
+                if let pairResult = handleAutoPair(textView: textView, input: string, charRange: affectedCharRange) {
+                    textView.insertText(pairResult, replacementRange: affectedCharRange)
                     return false
                 }
             }
@@ -681,7 +622,7 @@ struct SimpleTextEditor: NSViewRepresentable {
                 }
 
                 let insertion = "\n" + indent + extraIndent
-                textView.insertText(insertion, replacementRange: charRange)
+                textView.insertText(insertion, replacementRange: affectedCharRange)
                 return false
             }
             return true
@@ -839,6 +780,10 @@ struct SimpleTextEditor: NSViewRepresentable {
 // MARK: - Line Length Guide View
 
 class LineLengthGuideView: NSView {
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        return nil // Pass through all mouse events
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
 
