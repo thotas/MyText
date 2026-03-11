@@ -39,18 +39,37 @@ class ThemeManager: ObservableObject {
     private let customThemesKey = "customThemes"
 
     private init() {
-        let savedThemeName = UserDefaults.standard.string(forKey: "selectedTheme") ?? "Dark"
-        let savedSyncWithSystem = UserDefaults.standard.bool(forKey: "syncWithSystem")
-
-        syncWithSystem = savedSyncWithSystem
+        // Safely load custom themes with error handling
         customThemes = ThemeManager.loadCustomThemesFromDefaults()
+
+        // Load sync setting - default to false if corrupted
+        let savedSyncWithSystem: Bool
+        if UserDefaults.standard.object(forKey: "syncWithSystem") != nil {
+            savedSyncWithSystem = UserDefaults.standard.bool(forKey: "syncWithSystem")
+        } else {
+            savedSyncWithSystem = false
+        }
+        syncWithSystem = savedSyncWithSystem
+
+        // Set default theme first
         currentTheme = EditorTheme.dark
 
         // Set initial theme based on system if sync is enabled
         if syncWithSystem {
             updateForSystemAppearance()
         } else {
-            currentTheme = (builtInThemes + customThemes).first(where: { $0.name == savedThemeName }) ?? .dark
+            // Safely get saved theme name, default to "Dark"
+            let savedThemeName = UserDefaults.standard.string(forKey: "selectedTheme") ?? "Dark"
+            let allThemes = builtInThemes + customThemes
+
+            // Validate that the saved theme exists, otherwise use default
+            if let theme = allThemes.first(where: { $0.name == savedThemeName }) {
+                currentTheme = theme
+            } else {
+                // Saved theme name not found - use default
+                currentTheme = EditorTheme.dark
+                UserDefaults.standard.set("Dark", forKey: "selectedTheme")
+            }
         }
 
         // Observe system appearance changes
@@ -133,11 +152,24 @@ class ThemeManager: ObservableObject {
     }
 
     private static func loadCustomThemesFromDefaults() -> [EditorTheme] {
-        guard let data = UserDefaults.standard.data(forKey: "customThemes"),
-              let themeDataList = try? JSONDecoder().decode([ThemeData].self, from: data) else {
+        guard let data = UserDefaults.standard.data(forKey: "customThemes") else {
             return []
         }
-        return themeDataList.map { $0.toEditorTheme() }
+        do {
+            let themeDataList = try JSONDecoder().decode([ThemeData].self, from: data)
+            return themeDataList.compactMap { themeData in
+                // Validate each theme has required fields
+                guard !themeData.name.isEmpty,
+                      !themeData.background.isEmpty else {
+                    return nil
+                }
+                return themeData.toEditorTheme()
+            }
+        } catch {
+            // Corrupted theme data - clear it
+            UserDefaults.standard.removeObject(forKey: "customThemes")
+            return []
+        }
     }
 
     func setTheme(_ theme: EditorTheme) {
@@ -284,6 +316,38 @@ class ThemeManager: ObservableObject {
         var files = recentFiles()
         files.removeAll { $0 == url }
         UserDefaults.standard.set(files.map { $0.path }, forKey: recentFilesKey)
+    }
+
+    // MARK: - Reset UserDefaults
+
+    /// Resets all UserDefaults data for the app - useful for recovering from corrupted settings
+    func resetUserDefaults() {
+        let keys = [
+            "syncWithSystem",
+            "selectedTheme",
+            customThemesKey,
+            "fontSize",
+            "fontName",
+            "tabWidth",
+            "showLineNumbers",
+            "showInvisibles",
+            "highlightTrailingWhitespace",
+            "autoSaveEnabled",
+            "autoSaveInterval",
+            "showLineLengthGuide",
+            "lineLengthGuideColumn",
+            "autoPairBrackets",
+            recentFilesKey,
+            "wordWrap",
+            "trimTrailingWhitespace"
+        ]
+        for key in keys {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+        // Reset to defaults
+        currentTheme = .dark
+        syncWithSystem = false
+        customThemes = []
     }
 }
 
