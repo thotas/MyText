@@ -31,16 +31,19 @@ struct FoldGutterView: View {
     private let lineHeight: CGFloat = 16
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(viewModel.document.content.components(separatedBy: "\n").enumerated()), id: \.offset) { index, _ in
-                let lineNumber = index + 1
-                FoldIndicatorView(
-                    lineNumber: lineNumber,
-                    indicator: viewModel.getFoldIndicator(for: lineNumber),
-                    isFolded: viewModel.isLineFolded(lineNumber),
-                    onTap: { onFoldClick(lineNumber) }
-                )
-                .frame(height: lineHeight)
+        // Use LazyVStack for performance with large files
+        ScrollView(.vertical, showsIndicators: false) {
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(Array(viewModel.document.content.components(separatedBy: "\n").enumerated()), id: \.offset) { index, _ in
+                    let lineNumber = index + 1
+                    FoldIndicatorView(
+                        lineNumber: lineNumber,
+                        indicator: viewModel.getFoldIndicator(for: lineNumber),
+                        isFolded: viewModel.isLineFolded(lineNumber),
+                        onTap: { onFoldClick(lineNumber) }
+                    )
+                    .frame(height: lineHeight)
+                }
             }
         }
         .frame(width: gutterWidth)
