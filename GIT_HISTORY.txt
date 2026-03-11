@@ -1,0 +1,70 @@
+f60d604 fix: Resolve crash on launch caused by multiple critical issues
+dcd0bd7 fix: Remove FoldGutterView to prevent app crash on launch
+2c252f7 fix: Use LazyVStack in FoldGutterView for better performance
+52c3660 fix: Add defensive error handling to prevent crashes
+22fa1d3 fix: Add defensive UserDefaults handling to prevent crashes
+90f0bc4 feat: Add Join Lines feature
+85e88d2 feat: Add auto-save toggle
+1f6d386 feat: Add line length guide toggle
+5bde041 feat: Add font zoom feature
+52d2f6c feat: Add bracket auto-pairing feature
+5250159 feat: Add line ending conversion feature
+e951731 feat: add Select All Occurrences feature
+cdd7a65 feat: add highlight selection feature
+99cc8b1 feat: implement tab reordering with drag and drop
+bcba795 feat: add Jump to Matching Bracket
+88e2ec3 feat: implement incremental syntax highlighting
+b2abc6d docs: mark Multiple Windows as implemented
+08fcdea feat: Add Line Length Guide feature
+4bd6add feat: Add Auto-save feature
+9988760 feat: Add Convert Indentation feature
+99efed8 feat: Add Find Selection feature with Cmd+E shortcut
+dec1c55 feat: Add Trim Trailing Whitespace command
+82225e8 feat: Add Trailing Whitespace Highlighting feature
+992a3b0 feat: Add Show Invisibles feature with Cmd+Shift+I shortcut
+a15fdd7 feat: Add Sort Lines feature with Cmd+Opt+S shortcut
+a2c359e feat: add uppercase/lowercase selection conversion
+dfc0092 feat: add recent files to sidebar
+5ba6860 feat: add word and character count to status bar
+b9411c1 feat: add split view for editor
+4619c83 fix: Settings theme picker now works correctly
+2cdd1c9 feat: add trim trailing whitespace on save option
+a8cf0c5 feat: add bracket matching for parentheses, brackets, and braces
+a218842 docs: mark Replace as fully implemented in spec
+72aa24b chore: Update spec - mark Reorder Tabs as deferred
+fde515e chore: Update spec - mark verified features
+335f2b3 chore: Update spec - mark verified features
+6ee5ff6 chore: Update spec - mark verified features
+3c39c4d chore: Update spec - mark verified features
+81f32b5 feat: Add Select Line (Cmd+Shift+L) functionality
+3840471 feat: Add Cmd+H for Replace and verify features
+dd99cf5 feat: Add tab navigation shortcuts (Cmd+Tab, Cmd+Shift+Tab, Cmd+Shift+[/])
+12ecebb feat: Connect line operations and code folding
+7e22bfa feat: Add global Find Next/Previous shortcuts (Cmd+G, Cmd+Shift+G)
+4a712df feat: Add Go to Line (Cmd+L) functionality
+9cb090c feat: Add Quick Open (Cmd+P) for fast file access
+66430e9 fix: Prevent crash when closing last tab
+6fcdd47 fix: Prevent crash when closing tabs
+5b5aa72 fix: Handle files opened from Finder via double-click
+5ab2df6 fix: Ensure document sync after opening files
+00ff1a2 feat: Add code folding support
+ad2f3f2 feat: Add tab management
+e0fc65d feat: Add custom themes and system sync
+54ba217 feat: Add word wrap support
+471c12a feat: Add current line highlight
+0d8a649 feat: Add replace all and find navigation
+236455f fix: Use lineRange API in getCurrentLine for cleaner implementation
+4764eab feat: Add auto-indent support
+c4c5bb4 fix: Remove extra dropFirst() in toggleComment uncomment logic
+c4385e7 feat: Add line operations (duplicate, move up/down, toggle comment)
+e73f9f9 feat: Add error message display to StatusBarView
+2ea0293 fix: Improve recent files robustness and error handling
+c19ea74 feat: Add recent files support (up to 10)
+291a09b docs: Add implementation plan for premium features
+b430281 docs: Add premium text editor specification and gap analysis
+dea21fd feat: Add manual language selection and fix highlighting
+0b675ec feat: Add sidebar and fix file opening
+c1a6396 fix: Prevent infinite loop in syntax highlighting
+7fca8c3 fix: Simplify editor to fix crash
+c41e68b fix: App crash on launch and add app icon
+45eaa21 feat: Initial MyText text editor implementation

@@ -73,19 +73,11 @@
 			);
 			sourceTree = "<group>";
 		};
-		42F7A4C363C38597204E1BE8 /* Themes */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Themes;
-			sourceTree = "<group>";
-		};
 		5C48410BF3B1043E495D4FF4 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
 				95576D651B1BF708A10B619D /* App */,
 				210168C824A185330F2DC467 /* Models */,
-				CB5F3D1A3B45504695A5B5AE /* Resources */,
 				A7EFFD6057065557851F7548 /* Services */,
 				12F4377A58E56667CAC0F7B9 /* ViewModels */,
 				8495E4205E063D9F9A1EF6D6 /* Views */,
@@ -101,13 +93,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		734CF544D183DD9C0EB5B66C /* LanguageDefinitions */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = LanguageDefinitions;
-			sourceTree = "<group>";
-		};
 		8495E4205E063D9F9A1EF6D6 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -121,7 +106,6 @@
 				146E57D783E1AD0673A012C3 /* StatusBarView.swift */,
 				59C1407FFF77E83010FF7E1F /* TabBarView.swift */,
 				136263A14BE2FE6A85B1FC51 /* ToolbarView.swift */,
-				DC5259E533B9BB0489A0A82E /* Components */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -139,7 +123,6 @@
 			children = (
 				57572141DA3934E0057AECC0 /* SyntaxHighlighter.swift */,
 				A70AFC9A61C783FAEA95D78C /* ThemeManager.swift */,
-				734CF544D183DD9C0EB5B66C /* LanguageDefinitions */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -152,21 +135,6 @@
 				714503271D919BE5A30B6395 /* MyText.entitlements */,
 			);
 			path = Resources;
-			sourceTree = "<group>";
-		};
-		CB5F3D1A3B45504695A5B5AE /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				42F7A4C363C38597204E1BE8 /* Themes */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
-		DC5259E533B9BB0489A0A82E /* Components */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Components;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
