@@ -397,6 +397,7 @@ Mark each item against the current codebase to identify work required.
 | 4.11f | Auto-Pair Brackets | [✓] | handleAutoPair in EditorView, auto-closes brackets/quotes, toggle in menu |
 | 4.11g | Font Zoom | [✓] | zoomIn/zoomOut/zoomReset in ThemeManager, Cmd+/-, Cmd+0 shortcuts |
 | 4.11h | Line Length Guide | [✓] | LineLengthGuideView, toggle in View menu, Cmd+Shift+R |
+| 4.11i | Auto-Save | [✓] | Auto-save timer in EditorViewModel, toggle in View menu |
 
 ### Syntax Highlighting
 

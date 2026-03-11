@@ -46,7 +46,7 @@ class EditorViewModel: ObservableObject {
 
     private var autoSaveTimer: Timer?
 
-    private func startAutoSaveTimer() {
+    func startAutoSaveTimer() {
         let interval = TimeInterval(ThemeManager.shared.autoSaveInterval())
         autoSaveTimer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
             Task { @MainActor in

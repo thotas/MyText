@@ -225,6 +225,10 @@ struct MyTextApp: App {
                 }
                 .keyboardShortcut("r", modifiers: [.command, .shift])
 
+                Button("Auto-Save") {
+                    NotificationCenter.default.post(name: .toggleAutoSave, object: nil)
+                }
+
                 Divider()
 
                 Button("Split Horizontal") {
@@ -344,6 +348,7 @@ extension Notification.Name {
     static let zoomOut = Notification.Name("zoomOut")
     static let zoomReset = Notification.Name("zoomReset")
     static let toggleLineLengthGuide = Notification.Name("toggleLineLengthGuide")
+    static let toggleAutoSave = Notification.Name("toggleAutoSave")
     static let refreshEditor = Notification.Name("refreshEditor")
     static let trimTrailingWhitespace = Notification.Name("trimTrailingWhitespace")
     static let findSelection = Notification.Name("findSelection")
