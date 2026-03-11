@@ -178,7 +178,12 @@ class ThemeManager: ObservableObject {
     }
 
     func fontSize() -> Double {
-        UserDefaults.standard.double(forKey: "fontSize").nonZero ?? 14.0
+        let size = UserDefaults.standard.double(forKey: "fontSize")
+        // Clamp to valid range and ensure non-zero
+        if size > 0 {
+            return min(max(size, 8.0), 72.0)
+        }
+        return 14.0
     }
 
     func setFontSize(_ size: Double) {
@@ -206,7 +211,11 @@ class ThemeManager: ObservableObject {
 
     func tabWidth() -> Int {
         let width = UserDefaults.standard.integer(forKey: "tabWidth")
-        return width > 0 ? width : 4
+        // Clamp to valid range
+        if width > 0 {
+            return min(max(width, 2), 16)
+        }
+        return 4
     }
 
     func setTabWidth(_ width: Int) {

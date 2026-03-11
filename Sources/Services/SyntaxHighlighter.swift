@@ -61,11 +61,17 @@ class SyntaxHighlighter {
     }
 
     func highlight(_ text: String, language: ProgrammingLanguage, theme: EditorTheme) -> NSAttributedString {
+        // Defensive: handle empty or nil text
+        guard !text.isEmpty else {
+            return NSAttributedString(string: "")
+        }
+
         let attributedString = NSMutableAttributedString(string: text)
         let fullRange = NSRange(location: 0, length: text.utf16.count)
 
-        // Base styling
-        let baseFont = NSFont.monospacedSystemFont(ofSize: ThemeManager.shared.fontSize(), weight: .regular)
+        // Base styling - get font size safely
+        let fontSize = ThemeManager.shared.fontSize()
+        let baseFont = NSFont.monospacedSystemFont(ofSize: fontSize > 0 ? fontSize : 14.0, weight: .regular)
         let baseAttributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: NSColor(theme.text),
             .font: baseFont
@@ -75,16 +81,54 @@ class SyntaxHighlighter {
         // Apply theme colors
         attributedString.addAttribute(.foregroundColor, value: NSColor(theme.text), range: fullRange)
 
-        guard let definition = languageDefinitions[language], language != .plainText else {
+        guard language != .plainText else {
             return attributedString
         }
 
-        // Apply patterns
+        guard let definition = languageDefinitions[language] else {
+            return attributedString
+        }
+
+        // Apply patterns with error handling
         for patternDef in definition.patterns {
-            applyPattern(patternDef, to: attributedString, text: text, theme: theme)
+            do {
+                try applyPatternSafe(patternDef, to: attributedString, text: text, theme: theme)
+            } catch {
+                // Skip patterns that fail to compile
+                print("Warning: Failed to apply pattern: \(patternDef.name)")
+            }
         }
 
         return attributedString
+    }
+
+    /// Safe version of applyPattern with error handling
+    private func applyPatternSafe(_ patternDef: PatternDefinition, to attributedString: NSMutableAttributedString, text: String, theme: EditorTheme) throws {
+        guard let regex = try? NSRegularExpression(pattern: patternDef.pattern, options: patternDef.patternOptions) else {
+            return // Silently skip invalid patterns
+        }
+
+        let range = NSRange(location: 0, length: text.utf16.count)
+        let matches = regex.matches(in: text, options: [], range: range)
+
+        let color = colorForScope(patternDef.scope, theme: theme)
+        let font = fontForScope(patternDef.scope, theme: theme)
+
+        for match in matches {
+            let matchRange: NSRange
+            if patternDef.captureGroup > 0, match.numberOfRanges > patternDef.captureGroup {
+                matchRange = match.range(at: patternDef.captureGroup)
+            } else {
+                matchRange = match.range
+            }
+
+            if matchRange.location != NSNotFound {
+                attributedString.addAttribute(.foregroundColor, value: color, range: matchRange)
+                if let font = font {
+                    attributedString.addAttribute(.font, value: font, range: matchRange)
+                }
+            }
+        }
     }
 
     func highlightAsync(_ text: String, language: ProgrammingLanguage, theme: EditorTheme, completion: @escaping (NSAttributedString) -> Void) {

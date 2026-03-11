@@ -184,7 +184,13 @@ struct SimpleTextEditor: NSViewRepresentable {
 
         if contentChanged {
             textView.string = viewModel.document.content
-            // Re-apply highlighting when file is loaded
+            // Re-apply highlighting when content changes
+            context.coordinator.applyHighlighting(to: textView)
+        }
+
+        // Also check if language changed - need to re-apply highlighting
+        let languageChanged = context.coordinator.lastAppliedLanguage != viewModel.detectedLanguage
+        if languageChanged {
             context.coordinator.applyHighlighting(to: textView)
         }
     }
@@ -196,7 +202,7 @@ struct SimpleTextEditor: NSViewRepresentable {
     @MainActor class Coordinator: NSObject, NSTextViewDelegate {
         var parent: SimpleTextEditor
         private var highlightWorkItem: DispatchWorkItem?
-        private var lastAppliedLanguage: ProgrammingLanguage = .plainText
+        var lastAppliedLanguage: ProgrammingLanguage = .plainText
         private var lastContentHash: Int = 0
         private var currentLineHighlight: NSRange?
         private var bracketMatchHighlight: NSRange?
