@@ -220,6 +220,11 @@ struct MyTextApp: App {
                     NotificationCenter.default.post(name: .toggleAutoPairBrackets, object: nil)
                 }
 
+                Button("Show Line Length Guide") {
+                    NotificationCenter.default.post(name: .toggleLineLengthGuide, object: nil)
+                }
+                .keyboardShortcut("r", modifiers: [.command, .shift])
+
                 Divider()
 
                 Button("Split Horizontal") {
@@ -338,6 +343,7 @@ extension Notification.Name {
     static let zoomIn = Notification.Name("zoomIn")
     static let zoomOut = Notification.Name("zoomOut")
     static let zoomReset = Notification.Name("zoomReset")
+    static let toggleLineLengthGuide = Notification.Name("toggleLineLengthGuide")
     static let refreshEditor = Notification.Name("refreshEditor")
     static let trimTrailingWhitespace = Notification.Name("trimTrailingWhitespace")
     static let findSelection = Notification.Name("findSelection")
