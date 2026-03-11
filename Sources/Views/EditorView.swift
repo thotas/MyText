@@ -6,17 +6,8 @@ struct EditorView: View {
     var themeManager: ThemeManager
 
     var body: some View {
-        HStack(spacing: 0) {
-            FoldGutterView(
-                viewModel: viewModel,
-                themeManager: themeManager,
-                onFoldClick: { line in
-                    viewModel.toggleFold(at: line)
-                }
-            )
-            SimpleTextEditor(viewModel: viewModel, themeManager: themeManager)
-        }
-        .background(Color(themeManager.currentTheme.editorBackground))
+        SimpleTextEditor(viewModel: viewModel, themeManager: themeManager)
+            .background(Color(themeManager.currentTheme.editorBackground))
     }
 }
 
