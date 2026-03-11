@@ -185,6 +185,11 @@ struct MyTextApp: App {
                 }
                 .keyboardShortcut("s", modifiers: [.command, .option])
 
+                Button("Join Lines") {
+                    NotificationCenter.default.post(name: .joinLines, object: nil)
+                }
+                .keyboardShortcut("j", modifiers: [.command, .option])
+
                 Divider()
 
                 Button("Go to Line...") {
@@ -342,6 +347,7 @@ extension Notification.Name {
     static let uppercaseSelection = Notification.Name("uppercaseSelection")
     static let lowercaseSelection = Notification.Name("lowercaseSelection")
     static let sortLines = Notification.Name("sortLines")
+    static let joinLines = Notification.Name("joinLines")
     static let toggleInvisibles = Notification.Name("toggleInvisibles")
     static let toggleAutoPairBrackets = Notification.Name("toggleAutoPairBrackets")
     static let zoomIn = Notification.Name("zoomIn")

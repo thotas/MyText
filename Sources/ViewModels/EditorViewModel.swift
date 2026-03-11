@@ -797,6 +797,34 @@ class EditorViewModel: ObservableObject {
         document.isModified = true
     }
 
+    func joinLines() {
+        guard let textView = textView else { return }
+        let content = textView.string
+        let selectedRange = textView.selectedRange()
+
+        let string = content as NSString
+        let lineRange: NSRange
+
+        if selectedRange.length > 0 {
+            // Join selected lines
+            lineRange = string.lineRange(for: selectedRange)
+        } else {
+            // Join all lines
+            lineRange = NSRange(location: 0, length: string.length)
+        }
+
+        let selectedText = string.substring(with: lineRange)
+        let lines = selectedText.components(separatedBy: "\n")
+
+        // Join lines with a single space between them
+        let joinedText = lines.joined(separator: " ")
+            .replacingOccurrences(of: "  ", with: " ") // Clean up extra spaces
+
+        textView.insertText(joinedText, replacementRange: lineRange)
+        document.content = textView.string
+        document.isModified = true
+    }
+
     // MARK: - Find & Replace
 
     func replaceNext(searchText: String, replaceWith: String) {
