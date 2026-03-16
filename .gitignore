@@ -19,3 +19,6 @@ MyText.app.dSYM/
 # Temporary files
 *.tmp
 *.log
+
+# Claude
+.claude
