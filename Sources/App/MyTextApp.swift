@@ -105,7 +105,7 @@ struct MyTextApp: App {
                 .keyboardShortcut("w", modifiers: .command)
             }
 
-            // View menu - tab navigation
+            // View menu - tab navigation + distraction-free
             CommandGroup(after: .toolbar) {
                 Divider()
                 Button("Show Next Tab") {
@@ -117,6 +117,21 @@ struct MyTextApp: App {
                     NotificationCenter.default.post(name: .previousTab, object: nil)
                 }
                 .keyboardShortcut("[", modifiers: [.command, .shift])
+
+                Divider()
+
+                Button("Distraction-Free Mode") {
+                    NotificationCenter.default.post(name: .toggleDistractionFreeMode, object: nil)
+                }
+                .keyboardShortcut("f", modifiers: [.command, .shift])
+            }
+
+            // Help menu
+            CommandGroup(replacing: .help) {
+                Button("Keyboard Shortcuts") {
+                    NotificationCenter.default.post(name: .showKeyboardShortcuts, object: nil)
+                }
+                .keyboardShortcut("/", modifiers: .command)
             }
 
             // Edit menu
@@ -341,4 +356,6 @@ extension Notification.Name {
     static let convertToCR = Notification.Name("convertToCR")
     static let jumpToMatchingBracket = Notification.Name("jumpToMatchingBracket")
     static let selectAllOccurrences = Notification.Name("selectAllOccurrences")
+    static let showKeyboardShortcuts = Notification.Name("showKeyboardShortcuts")
+    static let toggleDistractionFreeMode = Notification.Name("toggleDistractionFreeMode")
 }

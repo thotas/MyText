@@ -44,7 +44,7 @@ struct SimpleTextEditor: NSViewRepresentable {
 
         // Configure font
         let fontSize = ThemeManager.shared.fontSize()
-        textView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
+        textView.font = ThemeManager.shared.editorFont(size: CGFloat(fontSize))
 
         // Configure invisible characters (show Invisibles) via layoutManager
         textView.layoutManager?.showsInvisibleCharacters = ThemeManager.shared.showInvisibles()
@@ -90,9 +90,12 @@ struct SimpleTextEditor: NSViewRepresentable {
         textView.backgroundColor = NSColor(Color(themeManager.currentTheme.editorBackground))
         textView.insertionPointColor = NSColor(Color(themeManager.currentTheme.cursor))
 
-        // Update font
+        // Update font only when changed to avoid unnecessary text layout invalidation
         let fontSize = ThemeManager.shared.fontSize()
-        textView.font = NSFont.monospacedSystemFont(ofSize: fontSize, weight: .regular)
+        let desiredFont = ThemeManager.shared.editorFont(size: CGFloat(fontSize))
+        if textView.font != desiredFont {
+            textView.font = desiredFont
+        }
 
         // Update invisible characters setting
         textView.layoutManager?.showsInvisibleCharacters = ThemeManager.shared.showInvisibles()

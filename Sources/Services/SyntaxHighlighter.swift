@@ -58,6 +58,37 @@ class SyntaxHighlighter {
                 PatternDefinition(name: "builtin", pattern: "\\b(print|len|range|int|str|float|list|dict|set|tuple|bool|type|isinstance|hasattr|getattr|setattr|input|open|file|map|filter|zip|enumerate|sorted|reversed|sum|min|max|abs|round|divmod|pow|hex|bin|oct|ord|chr|super|property|staticmethod|classmethod)\\b", scope: .type)
             ]
         )
+
+        // JSON
+        languageDefinitions[.json] = LanguageDefinition(
+            name: "JSON",
+            patterns: [
+                PatternDefinition(name: "string.key", pattern: "\"[^\"\\\\]*(?:\\\\.[^\"\\\\]*)*\"\\s*:", scope: .variable),
+                PatternDefinition(name: "string.value", pattern: ":\\s*\"[^\"\\\\]*(?:\\\\.[^\"\\\\]*)*\"", scope: .string),
+                PatternDefinition(name: "string.bare", pattern: "\"[^\"\\\\]*(?:\\\\.[^\"\\\\]*)*\"", scope: .string),
+                PatternDefinition(name: "number", pattern: "-?\\b(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?\\b", scope: .number),
+                PatternDefinition(name: "keyword", pattern: "\\b(true|false|null)\\b", scope: .keyword),
+                PatternDefinition(name: "operator", pattern: "[\\[\\]\\{\\}:,]", scope: .operator)
+            ]
+        )
+
+        // YAML
+        languageDefinitions[.yaml] = LanguageDefinition(
+            name: "YAML",
+            patterns: [
+                PatternDefinition(name: "comment", pattern: "#.*$", scope: .comment),
+                PatternDefinition(name: "key", pattern: "^\\s*[a-zA-Z_][a-zA-Z0-9_\\-\\.]*\\s*:", scope: .variable),
+                PatternDefinition(name: "anchor", pattern: "&[a-zA-Z_][a-zA-Z0-9_]*", scope: .preprocessor),
+                PatternDefinition(name: "alias", pattern: "\\*[a-zA-Z_][a-zA-Z0-9_]*", scope: .preprocessor),
+                PatternDefinition(name: "tag", pattern: "![a-zA-Z!][a-zA-Z0-9!]*", scope: .type),
+                PatternDefinition(name: "string.double", pattern: "\"(?:[^\"\\\\]|\\\\.)*\"", scope: .string),
+                PatternDefinition(name: "string.single", pattern: "'(?:[^'\\\\]|\\\\.)*'", scope: .string),
+                PatternDefinition(name: "number", pattern: "\\b-?(?:0[xX][0-9a-fA-F]+|0[oO][0-7]+|0[bB][01]+|\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)\\b", scope: .number),
+                PatternDefinition(name: "keyword", pattern: "\\b(true|false|null|yes|no|on|off|~)\\b", scope: .keyword),
+                PatternDefinition(name: "operator", pattern: "[-|>:?!{}\\[\\],]", scope: .operator),
+                PatternDefinition(name: "section", pattern: "^---$|^\\.\\.\\.\\s*$", scope: .preprocessor)
+            ]
+        )
     }
 
     func highlight(_ text: String, language: ProgrammingLanguage, theme: EditorTheme) -> NSAttributedString {
@@ -71,7 +102,7 @@ class SyntaxHighlighter {
 
         // Base styling - get font size safely
         let fontSize = ThemeManager.shared.fontSize()
-        let baseFont = NSFont.monospacedSystemFont(ofSize: fontSize > 0 ? fontSize : 14.0, weight: .regular)
+        let baseFont = ThemeManager.shared.editorFont(size: CGFloat(fontSize > 0 ? fontSize : 14.0))
         let baseAttributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: NSColor(theme.text),
             .font: baseFont
@@ -150,7 +181,7 @@ class SyntaxHighlighter {
         let fullRange = NSRange(location: 0, length: text.utf16.count)
 
         // Base styling
-        let baseFont = NSFont.monospacedSystemFont(ofSize: ThemeManager.shared.fontSize(), weight: .regular)
+        let baseFont = ThemeManager.shared.editorFont(size: CGFloat(ThemeManager.shared.fontSize()))
         let baseAttributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: NSColor(theme.text),
             .font: baseFont
@@ -180,7 +211,7 @@ class SyntaxHighlighter {
         let lineString = nsText.substring(with: lineRange)
 
         // Reset the line to base styling first
-        let baseFont = NSFont.monospacedSystemFont(ofSize: ThemeManager.shared.fontSize(), weight: .regular)
+        let baseFont = ThemeManager.shared.editorFont(size: CGFloat(ThemeManager.shared.fontSize()))
         let baseColor = NSColor(theme.text)
         textStorage.beginEditing()
         textStorage.addAttribute(.foregroundColor, value: baseColor, range: lineRange)
@@ -294,12 +325,10 @@ class SyntaxHighlighter {
     }
 
     private func fontForScope(_ scope: SyntaxScope, theme: EditorTheme) -> NSFont? {
-        let baseSize = ThemeManager.shared.fontSize()
         switch scope {
-        case .keyword, .type:
-            return NSFont.monospacedSystemFont(ofSize: baseSize, weight: .semibold)
-        case .function:
-            return NSFont.monospacedSystemFont(ofSize: baseSize, weight: .medium)
+        case .keyword, .type, .function:
+            let base = ThemeManager.shared.editorFont(size: CGFloat(ThemeManager.shared.fontSize()))
+            return NSFontManager.shared.convert(base, toHaveTrait: .boldFontMask)
         default:
             return nil
         }
@@ -405,6 +434,12 @@ class SyntaxHighlighter {
                    matchesPattern(trimmedLine, pattern: createPattern, caseInsensitive: true) ||
                    matchesPattern(trimmedLine, pattern: selectPattern, caseInsensitive: true)
 
+        case .json:
+            return trimmedLine.hasSuffix("{") || trimmedLine.hasSuffix("[")
+
+        case .yaml:
+            return trimmedLine.hasSuffix(":") && !trimmedLine.hasPrefix("#")
+
         case .plainText:
             return false
         }
@@ -430,6 +465,12 @@ class SyntaxHighlighter {
         case .sql:
             let endPattern = "^END\\s*;?$"
             return matchesPattern(trimmedLine, pattern: endPattern, caseInsensitive: true)
+
+        case .json:
+            return trimmedLine == "}" || trimmedLine == "]" || trimmedLine == "}," || trimmedLine == "],"
+
+        case .yaml:
+            return false
 
         case .plainText:
             return false

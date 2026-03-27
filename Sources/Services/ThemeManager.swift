@@ -187,8 +187,9 @@ class ThemeManager: ObservableObject {
     }
 
     func setFontSize(_ size: Double) {
-        let clampedSize = min(max(size, 8.0), 72.0) // Clamp between 8 and 72
+        let clampedSize = min(max(size, 8.0), 72.0)
         UserDefaults.standard.set(clampedSize, forKey: "fontSize")
+        invalidateFontCache()
     }
 
     func zoomIn() {
@@ -202,11 +203,41 @@ class ThemeManager: ObservableObject {
     }
 
     func fontName() -> String {
-        UserDefaults.standard.string(forKey: "fontName") ?? "SF Mono"
+        UserDefaults.standard.string(forKey: "fontName") ?? "JetBrains Mono"
     }
 
     func setFontName(_ name: String) {
         UserDefaults.standard.set(name, forKey: "fontName")
+        invalidateFontCache()
+    }
+
+    private var _cachedFont: NSFont?
+    private var _cachedFontName: String = ""
+    private var _cachedFontSize: CGFloat = 0
+
+    /// Returns the premium editor font, using the user-configured name with a quality fallback chain.
+    /// Cached: font object is reused as long as name and size haven't changed.
+    func editorFont(size: CGFloat) -> NSFont {
+        let size = size > 0 ? size : 14.0
+        let name = fontName()
+        if let cached = _cachedFont, _cachedFontName == name, _cachedFontSize == size {
+            return cached
+        }
+        let fallbacks = [name, "JetBrains Mono", "Menlo", "SF Mono"]
+        let font: NSFont
+        if let found = fallbacks.lazy.compactMap({ NSFont(name: $0, size: size) }).first {
+            font = found
+        } else {
+            font = NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
+        }
+        _cachedFont = font
+        _cachedFontName = name
+        _cachedFontSize = size
+        return font
+    }
+
+    func invalidateFontCache() {
+        _cachedFont = nil
     }
 
     func tabWidth() -> Int {

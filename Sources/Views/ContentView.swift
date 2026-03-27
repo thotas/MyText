@@ -10,6 +10,8 @@ struct ContentView: View {
     @State private var tabs: [TabItem] = []
     @State private var selectedTab: TabItem?
     @State private var splitMode: SplitMode = .none
+    @State private var showKeyboardShortcuts = false
+    @State private var isDistractionFreeMode = false
 
     // Store notification observers and event monitor to remove them later
     @State private var notificationObservers: [NSObjectProtocol] = []
@@ -23,16 +25,16 @@ struct ContentView: View {
 
     var body: some View {
         HSplitView {
-            // Sidebar
-            if showSidebar {
+            // Sidebar (hidden in distraction-free mode)
+            if showSidebar && !isDistractionFreeMode {
                 SidebarView(viewModel: viewModel, themeManager: themeManager)
                     .frame(minWidth: 180, idealWidth: 220, maxWidth: 300)
             }
 
             // Main content
             VStack(spacing: 0) {
-                // Tab bar (show when multiple tabs)
-                if tabs.count > 1 {
+                // Tab bar (hidden in distraction-free mode)
+                if tabs.count > 1 && !isDistractionFreeMode {
                     TabBarView(
                         tabs: $tabs,
                         selectedTab: $selectedTab,
@@ -47,14 +49,18 @@ struct ContentView: View {
                     )
                 }
 
-                // Toolbar
-                ToolbarView(viewModel: viewModel, showFindBar: $showFindBar, showSidebar: $showSidebar, themeManager: themeManager)
+                // Toolbar (hidden in distraction-free mode)
+                if !isDistractionFreeMode {
+                    ToolbarView(viewModel: viewModel, showFindBar: $showFindBar, showSidebar: $showSidebar, themeManager: themeManager)
+                }
 
                 // Editor (with optional split)
                 editorContent
 
-                // Status bar
-                StatusBarView(viewModel: viewModel, themeManager: themeManager)
+                // Status bar (hidden in distraction-free mode)
+                if !isDistractionFreeMode {
+                    StatusBarView(viewModel: viewModel, themeManager: themeManager)
+                }
             }
         }
         .background(Color(themeManager.currentTheme.background))
@@ -78,6 +84,9 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showGoToLine) {
             GoToLineView(isPresented: $showGoToLine, viewModel: viewModel, themeManager: themeManager)
+        }
+        .sheet(isPresented: $showKeyboardShortcuts) {
+            KeyboardShortcutsView(isPresented: $showKeyboardShortcuts)
         }
     }
 
@@ -418,12 +427,33 @@ struct ContentView: View {
             self.splitMode = .none
         }
 
-        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerJoinLines, observerToggleInvisibles, observerToggleAutoPair, observerZoomIn, observerZoomOut, observerZoomReset, observerToggleLineLengthGuide, observerToggleAutoSave, observerTrimTrailingWhitespace, observerFindSelection, observerConvertToSpaces, observerConvertToTabs, observerConvertToLF, observerConvertToCRLF, observerConvertToCR, observerSplitH, observerSplitV, observerSplitClose, observerJumpBracket, observerSelectAllOccurrences]
+        // Keyboard shortcuts panel
+        let observerKeyboardShortcuts = NotificationCenter.default.addObserver(forName: .showKeyboardShortcuts, object: nil, queue: .main) { _ in
+            self.showKeyboardShortcuts = true
+        }
+
+        // Distraction-free mode
+        let observerDistractionFree = NotificationCenter.default.addObserver(forName: .toggleDistractionFreeMode, object: nil, queue: .main) { _ in
+            if self.isDistractionFreeMode {
+                self.exitDistractionFreeMode()
+            } else {
+                self.isDistractionFreeMode = true
+                if let window = NSApp.mainWindow, !window.styleMask.contains(.fullScreen) {
+                    window.toggleFullScreen(nil)
+                }
+            }
+        }
+
+        notificationObservers = [observer1, observerOpenFile, observerQuickOpen, observer2, observer3, observer4, observer5, observer6, observer7, observer8, observer9, observer10, observer11, observer12, observer17, observer18, observer19, observer20, observerUppercase, observerLowercase, observerSortLines, observerJoinLines, observerToggleInvisibles, observerToggleAutoPair, observerZoomIn, observerZoomOut, observerZoomReset, observerToggleLineLengthGuide, observerToggleAutoSave, observerTrimTrailingWhitespace, observerFindSelection, observerConvertToSpaces, observerConvertToTabs, observerConvertToLF, observerConvertToCRLF, observerConvertToCR, observerSplitH, observerSplitV, observerSplitClose, observerJumpBracket, observerSelectAllOccurrences, observerKeyboardShortcuts, observerDistractionFree]
     }
 
     private func setupEventMonitor() {
         eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
             if event.keyCode == 53 { // Escape
+                if self.isDistractionFreeMode {
+                    self.exitDistractionFreeMode()
+                    return nil
+                }
                 if self.showFindBar {
                     self.showFindBar = false
                     return nil
@@ -442,6 +472,13 @@ struct ContentView: View {
                 return nil
             }
             return event
+        }
+    }
+
+    private func exitDistractionFreeMode() {
+        isDistractionFreeMode = false
+        if let window = NSApp.mainWindow, window.styleMask.contains(.fullScreen) {
+            window.toggleFullScreen(nil)
         }
     }
 

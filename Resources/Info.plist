@@ -21,6 +21,8 @@
 				<string>public.shell-script</string>
 				<string>public.python-script</string>
 				<string>public.sql-script</string>
+				<string>public.json</string>
+				<string>public.yaml</string>
 			</array>
 		</dict>
 	</array>

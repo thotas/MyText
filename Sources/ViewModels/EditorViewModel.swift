@@ -993,6 +993,8 @@ enum ProgrammingLanguage: String, CaseIterable {
     case shell = "Shell Script"
     case sql = "SQL"
     case python = "Python"
+    case json = "JSON"
+    case yaml = "YAML"
 
     var displayName: String { rawValue }
 
@@ -1002,6 +1004,8 @@ enum ProgrammingLanguage: String, CaseIterable {
         case .shell: return ["sh", "bash", "zsh", "fish", "csh"]
         case .sql: return ["sql", "pgsql", "mysql"]
         case .python: return ["py", "pyw", "pyi"]
+        case .json: return ["json", "jsonc", "geojson"]
+        case .yaml: return ["yaml", "yml"]
         }
     }
 

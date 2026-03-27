@@ -57,6 +57,8 @@ targets:
               - public.shell-script
               - public.python-script
               - public.sql-script
+              - public.json
+              - public.yaml
         UTImportedTypeDeclarations: []
     entitlements:
       path: Resources/MyText.entitlements
