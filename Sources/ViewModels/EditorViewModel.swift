@@ -428,10 +428,13 @@ class EditorViewModel: ObservableObject {
     }
 
     func insertText(_ text: String, at position: Int) {
-        var content = document.content
+        guard let textView = textView else { return }
+        let content = textView.string
         let index = content.index(content.startIndex, offsetBy: min(position, content.count))
-        content.insert(contentsOf: text, at: index)
-        document.content = content
+        var newContent = content
+        newContent.insert(contentsOf: text, at: index)
+        textView.string = newContent
+        document.content = newContent
         document.isModified = true
     }
 

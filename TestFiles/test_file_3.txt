@@ -1,0 +1,18 @@
+Test File 3
+Sun Mar 29 18:00:23 PDT 2026
+============================
+
+Line 1 of content in test file 3
+Line 2 with some text
+Line 3 with more content
+Line 4 additional text
+Line 5 final line
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+
+Quick brown fox jumps over the lazy dog.
+The quick brown fox jumps over the lazy dog.
+Pack my box with five dozen liquor jugs.
+
